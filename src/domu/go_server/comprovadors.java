@@ -36,6 +36,7 @@ public class comprovadors {
     private static int FORMAT_EMAIL_INCORRECTE = 1040;
     private static int EMAIL_JA_EXISTENT = 1041;
     
+    private static int ADMIN_AFEGIT = 2000;
     /**
     Clase que permite validar un DNI.  
     Se crea un objeto del tipo ValidadorDNI y se le pasa un String a validar.
