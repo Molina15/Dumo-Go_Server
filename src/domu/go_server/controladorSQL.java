@@ -5,264 +5,363 @@
  */
 package domu.go_server;
 
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.Session;
 import com.jcraft.jsch.JSchException;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
-import domu.go_server.comprovadors;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.stream.IntStream;
-import java.util.Arrays;  
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
- * @author Adrià Molina Inglada
+ * @author Fx
  */
 public class controladorSQL {
     
-    private static String host, port, DB, USER, PSW;
+    private static int ERROR_EN_EL_SERVIDOR = 0;
 
-    private static Connection connexio;
+    private static int USUARI_OK = 8000;
+    private static int USUARI_NO_EXISTEIX = 8010;
+    private static int PASSWORD_INCORRECTE = 8020;
     
-    private static List<String> noms_admin_connectats = new ArrayList<String>();
+    private static int ADMIN_OK = 7000;
+    private static int ADMIN_NO_EXISTEIX = 7010;
+    private static final int CONTRASENYA_ADMIN_INCORRECTE = 7020;
     
-    private static List<String> codis_admin_connectats = new ArrayList<String>();
-    private static List<String> codis_usuaris_connectats = new ArrayList<String>();
+    private static int USUARI_AFEGIT = 1000;
+    private static int NOM_USUARI_NO_VALID = 1010;
+    private static int FORMAT_PASSWORD_NO_VALID = 1020;
+    private static int FORMAT_DNI_INCORRECTE = 1030;
+    private static int DNI_JA_EXISTENT = 1041;
+    private static int FORMAT_EMAIL_INCORRECTE = 1040;
+    private static int EMAIL_JA_EXISTENT = 1041;
     
-    private static HashMap<String, String[]> llista_codis_admin = new HashMap<String, String[]>();
+    private static int ADMIN_AFEGIT = 2000;
+    private static int NOM_ADMIN_NO_VALID = 2010;
+    private static int FORMAT_PASSWORD_ADMIN_NO_VALID = 2020;
+    private static int FORMAT_DNI_ADMIN_INCORRECTE = 2030;
+    private static int DNI_ADMIN_JA_EXISTENT = 2041;
+    private static int FORMAT_EMAIL_ADMIN_INCORRECTE = 2040;
+    private static int EMAIL_ADMIN_JA_EXISTENT = 2041;
     
-    private static final String taula_codis_admin[][] = new String[100][3];
+    private static int USUARI_ESBORRAT = 3000;
+    private static int USUARI_INEXISTENT = 3010;
     
-    private static final int SESSIO_CADUCADA = 10;
-    private static final int SESSIO_TANCADA = 20;
-    
-    private static final int CODI_INICI = 10000;
-    private static final int CODI_FINAL = 10100;
-    
-    public static void obrir() throws SQLException, JSchException{
+    private static int ADMIN_ESBORRAT = 4000;
+    private static int ADMIN_INEXISTENT = 4010;
+ 
+    /**
+    Clase que permite validar un DNI.  
+    Se crea un objeto del tipo ValidadorDNI y se le pasa un String a validar.
+    @return true si DNI es correcto.
+    Desarrollado por Manuel Mato.
+    */
+    public static boolean comprobaFormatDNI(String dni) {
         
-        /**
-        String sshUser = "ubuntu"; // SSH loging username
-        String sshPassword = "ubuntu"; // SSH login password
-        String sshHost = "3.93.172.93"; // hostname or ip or SSH server
-        int sshPort = 22; // remote SSH host port number
-        
-        final JSch jsch = new JSch();
-        Session session = jsch.getSession(sshUser, sshHost, sshPort);
-        session.setPassword(sshPassword);
-        
-        final Properties config = new Properties();
-        config.put("StrictHostKeyChecking", "no");
-        session.setConfig(config);
-        
-        session.connect();
-        **/
-        
-        host = "dumogo.c1zr1mmgguen.eu-west-3.rds.amazonaws.com";
-        port = "5432";
-        DB = "dumogo";
-        USER = "dumogo";
-        PSW = "dumogo2022";
-        
-        String URL = "jdbc:postgresql://"+host+":"+port+"/"+DB;
-      
-        connexio = DriverManager.getConnection(URL, USER, PSW);
-        connexio.setAutoCommit(true);
-        boolean valid = connexio.isValid(50000);
-        System.out.println(valid ? "CONNEXIO OK" : "CONNEXIO FAIL");
-    }
-    
-    public static void tancar() throws SQLException{
-        if (connexio != null){
-            connexio.close();
-        }
-    }
-    
-    public static int realitza_accio(HashMap<String, String> dades) throws SQLException{
-        String sentencia = null;
-        Statement stmt = connexio.createStatement(); //Usamos create... no prepare...
-        int resposta = 0;
-        int resultat = 0;
-        System.out.println(dades);
+        boolean resposta;
 
-        try{
-            switch(dades.get("accio")){
-                // rep HashMap amb les claus(accio, nom_user, password)
-                case "comprobar_usuari":
-                    resultat = comprovadors.comprobarUsuari(stmt, dades);
-                    if (resultat == 8000){
-                        resposta = generaCodi(); //funcio que generara el codi
-                        codis_usuaris_connectats.add(String.valueOf(resposta));
-                       
-                        System.out.println(codis_usuaris_connectats);
-                    }else{
-                        //enviem codi d'error
-                        resposta = resultat;
-                    }
-                    break;
-                
-                // rep HashMap amb les claus(accio, nom_admin, password)
-                case "comprobar_admin":
-                    resultat = comprovadors.comprobarAdmin(stmt, dades);
-                    if (resultat == 7000){
-                        resposta = generaCodi(); //funcio que generara el codi
-                        
-                        codis_admin_connectats.add(String.valueOf(resposta));
-                        //noms_admin_connectats.add(dades.get("nom_admin"));
-                        System.out.println("Codis admin: " + codis_admin_connectats);
-                        //System.out.println("Noms  admin: " + noms_admin_connectats);
-                        
-                        /**
-                        String dades_admin[] = {dades.get("nom_admin"), ""}; //l'ultim parametre sera el temps de conexio;
-                        llista_codis_admin.put(String.valueOf(resposta), dades_admin);
-                        String info[] = llista_codis_admin.get(String.valueOf(resposta));
-                        System.out.println(llista_codis_admin.keySet() + " -> " + Arrays.asList(info));
-                        * **/
-                        
-                        /**
-                        int posicioX = taula_codis_admin.length;
-                        taula_codis_admin[posicioX][0] = String.valueOf(resposta);
-                        taula_codis_admin[posicioX][1] = dades.get("nom_admin");
-                        taula_codis_admin[posicioX][2] = "contador";
-                        
-                        for(int row = 0; row < 100; row++){
-                            for(int col = 0; col < 3; col++)
-                                System.out.print(taula_codis_admin[row][col] + " ");
-                            System.out.println();
-                        }
-                        * **/
-                        
-                    }else{ 
-                        //enviem codi d'error
-                        resposta = resultat;
-                    }
-                    break;
-                     
-                case "afegir_llibre":
-                    System.out.println(dades.get("codi"));
-                    System.out.println(codis_admin_connectats.contains(dades.get("codi")));
-                    if (trobaCodiAdmin(dades.get("codi"))){
-                        sentencia = "INSERT INTO llibres (nom, autor, any_publicacio, tipus, data_alta, reservat_dni, admin_alta) "
-                                + "VALUES ('"+dades.get("nom")+"','"+dades.get("autor")+"','"+dades.get("any_publicacio")+"',"
-                                + "'"+dades.get("tipus")+"','"+dades.get("data_alta")+"',"
-                                + "'"+dades.get("reservat_dni")+"','"+dades.get("admin_alta")+"');";
-                        stmt.executeUpdate(sentencia);
-                        System.out.print(sentencia.toString());
-                        resposta = 1;
-                    }else{
-                        resposta = SESSIO_CADUCADA;
-                    }
-                    break;
+        String letraMayuscula = ""; //Guardaremos la letra introducida en formato mayúscula
 
-                case "esborrar_llibre":
-                    if (trobaCodiAdmin(dades.get("codi"))){
-                        sentencia = "DELETE FROM llibres WHERE nom = '"+dades.get("nom")+"';";
-                        stmt.executeUpdate(sentencia);
-                        System.out.print(sentencia.toString());
-                        resposta = 1;
-                    }else{
-                        resposta = SESSIO_CADUCADA;
-                    }
-                    break;
-                    
-                case "esborrar_usuari":
-                    if (trobaCodiAdmin(dades.get("codi"))){
-                        resposta = comprovadors.esborraUsuari(stmt, dades);
-                    }else{
-                       resposta = SESSIO_CADUCADA; 
-                    }
-                    break;
-                    
-                case "afegir_usuari":
-                    if (trobaCodiAdmin(dades.get("codi"))){
-                        resposta = comprovadors.afegeixNouUsuari(stmt, dades);
-                    }else{
-                        resposta = SESSIO_CADUCADA;
-                    }
-                    break;
-                    
-                case "afegir_admin":
-                    if (trobaCodiAdmin(dades.get("codi"))){
-                        System.out.println("gola");
-                        resposta = comprovadors.afegeixNouAdmin(stmt, dades);
-                    }else{
-                        resposta = SESSIO_CADUCADA;
-                    }
-                    break;
-                    
-                case "esborrar_admin":
-                    if (trobaCodiAdmin(dades.get("codi"))){
-                        resposta = comprovadors.esborraAdmin(stmt, dades);
-                    }else{
-                        resposta = SESSIO_CADUCADA;
-                    }
-                    break;
-                
-                case "tancar_sessio":
-                    if (trobaCodiAdmin(dades.get("codi"))){
-                        
-                        resultat = obtenirIndexAdmin(dades.get("codi"));
-                        codis_admin_connectats.remove(dades.get("codi"));
-                        //noms_admin_connectats.remove(resultat);
-                        
-                        /**
-                        llista_codis_admin.remove(dades.get("codi"));
-                        * **/
-                        
-                        resposta = SESSIO_TANCADA;
-                    }else if(trobaCodiUsuari(dades.get("codi"))){
-                        codis_usuaris_connectats.remove(dades.get("codi"));
-                        resposta = SESSIO_TANCADA;
-                    }else{
-                        resposta = SESSIO_CADUCADA;
-                    }
+        // Aquí excluimos cadenas distintas a 9 caracteres que debe tener un dni/NIE y también si el último caracter no es una letra
+        if(dni.length() != 9 || Character.isLetter(dni.charAt(8)) == false ) {
+            resposta = false;
+        }else{
+            //comprobem si és un NIE
+            if (Character.isLetter(dni.charAt(0))){
+                //revisem la part on hi hauria d'haver numeros
+                String PartNumerica = dni.substring(1,7);
+                boolean isNumeric = PartNumerica.chars().allMatch( Character::isDigit );
+                //Si a la part numerica tot son numeros és un NIE
+                if (isNumeric){
+                    resposta = true;
+                }else{
+                    resposta = false;
+                }
+            }else{
+                //sino te una lletra al principi, el considerem un possible DNI
+                String PartNumerica = dni.substring(0,7);
+                boolean isNumeric = PartNumerica.chars().allMatch( Character::isDigit );
+                //Si a la part numerica tot son numeros és un NIE
+                if (isNumeric){
+                    resposta = true;
+                }else{
+                    resposta = false;
+                }
             }
-
-        }catch (SQLException ex) {
-            System.out.println("Error: "+ ex);
         }
+        return resposta;
+       
+    }
+    
+    public static int comprobarUsuari(Statement stmt, HashMap<String, String> dades) throws SQLException{
+        int resposta;
+        String nom_user = dades.get("nom_user");
+        String password = dades.get("password");
+        String sentencia = "SELECT nom_user, password FROM usuaris WHERE nom_user = '"+nom_user+"';";
+        //System.out.println(sentencia.toString());
+        stmt.executeQuery(sentencia);
+        try{
+            ResultSet rs = stmt.executeQuery(sentencia);
+            if (rs.next()){
+                //System.out.println(password+", "+rs.getString(2));
+                password = rs.getString(2);
+                if (password.toString().equals(password.toString())){
+                    //si l'usuari existeix i la contrasenya és correcta
+                    resposta = USUARI_OK;
+
+                }else{
+                    //contrasenya incorrecta
+                    resposta = PASSWORD_INCORRECTE;
+
+                }
+            }else{
+                //el nom d'usuari no existeix
+                resposta = USUARI_NO_EXISTEIX;
+
+            }
+        }catch (SQLException ex){
+            System.out.println(ex);
+            //error en el servidor
+            resposta = ERROR_EN_EL_SERVIDOR;
+        }
+        return resposta;
+    }
+    
+    public static int comprobarAdmin(Statement stmt, HashMap<String, String> dades) throws SQLException{
+        int resposta;
+        String nom_admin = dades.get("nom_admin");
+        String password = dades.get("password");
+        String sentencia = "SELECT nom_admin, password FROM administradors WHERE nom_admin = '"+nom_admin+"';";
+        System.out.println(sentencia.toString());
+        stmt.executeQuery(sentencia);
+        try{
+            ResultSet rs = stmt.executeQuery(sentencia);
+            if (rs.next()){
+                //System.out.println(password+", "+rs.getString(2));
+                password = rs.getString(2);
+                if (password.toString().equals(password.toString())){
+                    //si l'usuari existeix i la contrasenya es correcta
+                    resposta = ADMIN_OK;
+
+                }else{
+                    //contrasenya incorrecta
+                    resposta = CONTRASENYA_ADMIN_INCORRECTE;
+
+                }
+            }else{
+                //el nom d'usuari no existeix
+                resposta = ADMIN_NO_EXISTEIX;
+
+            }
+        }catch (SQLException ex){
+            System.out.println(ex);
+            //error en el servidor
+            resposta = ERROR_EN_EL_SERVIDOR;
+        }
+        System.out.println (resposta);
+        return resposta;
+    }
+    
+    
+    public static int afegeixNouUsuari(Statement stmt, HashMap<String, String> dades) throws SQLException{
+        int resposta = 0;
+        int comprobador;
+        String taula = "usuaris";
         
+        String nom_user = dades.get("nom_user");
+        String password = dades.get("password");
+        String dni = dades.get("dni").toUpperCase();
+        String data_alta = dades.get("data_alta");
+        String correu = dades.get("correu");
+        String admin_alta = dades.get("admin_alta");
+        String nom_cognoms = dades.get("nom_cognoms");
+        
+        String sentencia = "INSERT INTO public.usuaris(nom_user, password, dni, data_alta, correu, admin_alta, nom_cognoms)"
+                + " VALUES ('"+nom_user+"','"+password+"','"+dni+"','"+data_alta+"','"+correu+"','"+admin_alta+"','"+nom_cognoms+"');";
+        
+        comprobador = comprobarUsuari(stmt, dades);
+        
+        if (comprobador == 8010){
+            if (password.length() >= 4){
+                if(comprobaFormatDNI(dni)){
+                    if(trobaDNI(stmt, dni, taula) == false){
+                        if(comprobaFormatEmail(correu)){
+                            if(trobaCorreu(stmt, correu, taula) == false){
+                                try{
+                                    stmt.executeUpdate(sentencia);
+                                    resposta = USUARI_AFEGIT;
+                                }catch (SQLException ex) {
+                                    System.out.println("Error: "+ ex);
+                                    resposta = ERROR_EN_EL_SERVIDOR;
+                                }
+                            }else{
+                                resposta = EMAIL_JA_EXISTENT;
+                            }
+                        }else{
+                            resposta = FORMAT_EMAIL_INCORRECTE;
+                        }
+                    }else{
+                        resposta = DNI_JA_EXISTENT;
+                    }
+                }else{
+                    resposta = FORMAT_DNI_INCORRECTE;
+                }
+            }else{
+                resposta = FORMAT_PASSWORD_NO_VALID;
+            }
+        }else{
+            resposta = NOM_USUARI_NO_VALID;
+        }
         
         return resposta;
     }
     
-    private static boolean trobaCodiAdmin(String codi){
-        return codis_admin_connectats.contains(codi);
-    }
-    
-    private static boolean trobaCodiUsuari(String codi){
-        return codis_usuaris_connectats.contains(codi);
-    }
-    
-    private static void esborraCodiAdmin(String codi){
-        codis_admin_connectats.remove(codi);
-    }
-    private static void esborraCodiUsuari(String codi){
-        codis_usuaris_connectats.remove(codi);
-    }
-    
-    private static int generaCodi(){
-        int codi;
-        do{
-            codi = (int) Math.floor(Math.random()*(CODI_FINAL - CODI_INICI + 1) + CODI_INICI);
-        } while (trobaCodiAdmin(String.valueOf(codi)) != false && trobaCodiUsuari(String.valueOf(codi)) != false);
-        return codi;    
-    }
-    
-    private static int obtenirIndexAdmin(String codi) {
+    public static int afegeixNouAdmin(Statement stmt, HashMap<String, String> dades) throws SQLException{
+        int resposta = 0;
+        int comprobador;
+        String taula = "administradors";
         
-        int indexCodi = codis_admin_connectats.indexOf(codi);
-        return indexCodi;
-
+        String nom_admin = dades.get("nom_admin");
+        String password = dades.get("password");
+        String nom_cognoms = dades.get("nom_cognoms");
+        String dni = dades.get("dni").toUpperCase();
+        String correu = dades.get("correu");
+        String admin_alta = dades.get("admin_alta");
+        
+        String sentencia = "INSERT INTO "+ taula + "(nom_admin, password, nom_cognoms, dni, correu, admin_alta)"
+                + " VALUES ('"+nom_admin+"','"+password+"','"+nom_cognoms+"','"+dni+"','"+correu+"','"+admin_alta+"');";
+        
+        comprobador = comprobarAdmin(stmt, dades);
+        
+        if (comprobador == 7010){
+            if (password.length() >= 4){
+                if(comprobaFormatDNI(dni)){
+                    if(trobaDNI(stmt, dni, taula) == false){
+                        if(comprobaFormatEmail(correu)){
+                            if(trobaCorreu(stmt, correu, taula) == false){
+                                try{
+                                    stmt.executeUpdate(sentencia);
+                                    resposta = ADMIN_AFEGIT;
+                                }catch (SQLException ex) {
+                                    System.out.println("Error: "+ ex);
+                                    resposta = ERROR_EN_EL_SERVIDOR;
+                                }
+                            }else{
+                                resposta = EMAIL_ADMIN_JA_EXISTENT;
+                            }
+                        }else{
+                            resposta = FORMAT_EMAIL_ADMIN_INCORRECTE;
+                        }
+                    }else{
+                        resposta = DNI_ADMIN_JA_EXISTENT;
+                    }
+                }else{
+                    resposta = FORMAT_DNI_ADMIN_INCORRECTE;
+                }
+            }else{
+                resposta = FORMAT_PASSWORD_ADMIN_NO_VALID;
+            }
+        }else{
+            resposta = NOM_ADMIN_NO_VALID;
+        }
+        return resposta;
     }
-   
+    
+    public static int esborraUsuari(Statement stmt, HashMap<String, String> dades) throws SQLException{
+        String nom_user = dades.get("nom_user");
+        int resposta;
+        int comprobador = comprobarUsuari(stmt, dades);
+        try{
+            if (comprobador != USUARI_NO_EXISTEIX){
+                String sentencia = "DELETE FROM usuaris WHERE nom_user = '"+ nom_user +"';";
+                stmt.executeUpdate(sentencia);
+                resposta = USUARI_ESBORRAT;
+            }else{
+                resposta = USUARI_INEXISTENT;
+            }
+        }catch (SQLException ex) {
+            System.out.println("Error: "+ ex);
+            resposta = ERROR_EN_EL_SERVIDOR;
+        }
+        return resposta;
+        
+    }
+    
+    
+    public static int esborraAdmin(Statement stmt, HashMap<String, String> dades) throws SQLException{
+        String nom_admin = dades.get("nom_admin");
+        int resposta;
+        int comprobador = comprobarAdmin(stmt, dades);
+        try{
+            if (comprobador != ADMIN_NO_EXISTEIX){
+                String sentencia = "DELETE FROM administradors WHERE nom_admin = '"+ nom_admin +"';";
+                stmt.executeUpdate(sentencia);
+                resposta = ADMIN_ESBORRAT;
+            }else{
+                resposta = ADMIN_INEXISTENT;
+            }
+        }catch (SQLException ex) {
+            System.out.println("Error: "+ ex);
+            resposta = ERROR_EN_EL_SERVIDOR;
+        }
+        return resposta;
+        
+    }
+    
+    private static boolean trobaDNI(Statement stmt, String dni, String taula) throws SQLException{
+        boolean resposta = false;
+        String sentencia = "SELECT dni FROM "+taula+" WHERE dni = '"+dni+"';";
+        System.out.println(sentencia.toString());
+        stmt.executeQuery(sentencia);
+        try{
+            ResultSet rs = stmt.executeQuery(sentencia);
+            if (rs.next()){
+                resposta = true;
+            }else{
+                resposta = false;
+            }
+        }catch(SQLException ex){
+            System.out.println(ex);
+        }
+        return resposta;
+    }
+    
+    private static boolean comprobaFormatEmail(String correu){
+        // Patrón para validar el email
+        Pattern pattern = Pattern
+                .compile("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+                        + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
+ 
+        Matcher mather = pattern.matcher(correu);
+ 
+        if (mather.find() == true){
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+     private static boolean trobaCorreu(Statement stmt, String correu, String taula) throws SQLException{
+         boolean resposta = false;
+        String sentencia = "SELECT correu FROM "+taula+" WHERE correu = '"+correu+"';";
+        System.out.println(sentencia.toString());
+        stmt.executeQuery(sentencia);
+        try{
+            ResultSet rs = stmt.executeQuery(sentencia);
+            if (rs.next()){
+                resposta = true;
+            }else{
+                resposta = false;
+            }
+        }catch(SQLException ex){
+            System.out.println(ex);
+        }
+        return resposta;
+     } 
+        
+
+    
 }

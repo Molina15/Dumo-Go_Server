@@ -16,7 +16,7 @@ import java.net.Socket;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import domu.go_server.controladorSQL;
+import domu.go_server.AccionsServidor;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -67,7 +67,8 @@ public class ThreadClient extends Thread {
         int codi = 0;
         
         try {
-                controladorSQL.obrir();   
+                AccionsServidor.obrir();
+                //AccionsServidor.obrir();   
         } catch (SQLException ex) {
             Logger.getLogger(ThreadClient.class.getName()).log(Level.SEVERE, null, ex);
         } catch (JSchException ex) {
@@ -77,7 +78,7 @@ public class ThreadClient extends Thread {
         while(online){
             try{
                 msg = (HashMap) mapInputStream.readObject();
-                resposta_servidor = controladorSQL.realitza_accio(msg);
+                resposta_servidor = AccionsServidor.realitza_accio(msg);
                 if (resposta_servidor == SESSIO_CADUCADA){
                     //enviem resposta de codi de sesio no valid. 
                     mapOutputStream.writeObject(resposta_servidor);

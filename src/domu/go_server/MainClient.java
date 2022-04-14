@@ -160,10 +160,10 @@ public class MainClient {
                     Date date = new Date(miliseconds);
                     afegir_admin.put("codi", codi);
                     afegir_admin.put("accio", "afegir_admin");
-                    afegir_admin.put("nom_admin", "marc45");
+                    afegir_admin.put("nom_admin", "marçal35");
                     afegir_admin.put("password", "1234");
-                    afegir_admin.put("dni", "97766555h");
-                    afegir_admin.put("correu", "marc45@gmail.com");
+                    afegir_admin.put("dni", "97766554h");
+                    afegir_admin.put("correu", "marcal@gmail.com");
                     afegir_admin.put("admin_alta", "molina15");
                     afegir_admin.put("nom_cognoms", "Marc Marc");
                     //enviem la consulta al servidor
@@ -176,7 +176,7 @@ public class MainClient {
                 }else if ("8".equals(entrada)){
                     esborrar_admin.put("codi", codi);
                     esborrar_admin.put("accio", "esborrar_admin");
-                    esborrar_admin.put("nom_admin", "marc45");
+                    esborrar_admin.put("nom_admin", "marçal35");
                     mapOutputStream.writeObject(esborrar_admin);
                     System.out.println("Esperant confirmacio...");
                     //rebem la resposta del servidor
