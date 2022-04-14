@@ -153,12 +153,14 @@ public class AccionsServidor {
                     break;
                     
                 case "esborrar_usuari":
-                    posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
-                    if (posicioAdmin != -1){
+                    posicioUsuari = controladorUsuaris.trobaCodi(taula_usuaris_connectats, totalUsuaris, dades.get("codi"));
+                    if (posicioUsuari != -1){
                         resposta = controladorSQL.esborraUsuari(stmt, dades);
                         posicioUsuari = controladorUsuaris.trobaUsuari(taula_usuaris_connectats, totalUsuaris, dades.get("nom_user"));
-                        controladorUsuaris.eliminarSessio(taula_usuaris_connectats, totalUsuaris, posicioUsuari);
-                        totalUsuaris--;
+                        if (posicioUsuari != -1){
+                            controladorUsuaris.eliminarSessio(taula_usuaris_connectats, totalUsuaris, posicioUsuari);
+                            totalUsuaris--;
+                        }
                     }else{
                        resposta = SESSIO_CADUCADA; 
                     }
@@ -168,7 +170,6 @@ public class AccionsServidor {
                     posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
                     if (posicioAdmin != -1){
                         resposta = controladorSQL.esborraAdmin(stmt, dades);
-                        System.out.println("hola "+ resposta);
                         posicioAdmin = controladorUsuaris.trobaUsuari(taula_admin_connectats, totalAdmin, dades.get("nom_admin"));
                         System.out.println(posicioAdmin);
                         if (posicioAdmin != -1){
@@ -181,8 +182,8 @@ public class AccionsServidor {
                     break;
                     
                 case "afegir_usuari":
-                    posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
-                    if (posicioAdmin != -1){
+                    posicioUsuari = controladorUsuaris.trobaCodi(taula_usuaris_connectats, totalUsuaris, dades.get("codi"));
+                    if (posicioUsuari != -1){
                         resposta = controladorSQL.afegeixNouUsuari(stmt, dades);
                     }else{
                         resposta = SESSIO_CADUCADA;
@@ -228,36 +229,19 @@ public class AccionsServidor {
         return resposta;
     }
     
-    private static boolean trobaCodiAdmin(String codi){
-        return codis_admin_connectats.contains(codi);
-    }
-    
-    private static boolean trobaCodiUsuari(String codi){
-        return codis_usuaris_connectats.contains(codi);
-    }
-    
-    private static void esborraCodiAdmin(String codi){
-        codis_admin_connectats.remove(codi);
-    }
-    private static void esborraCodiUsuari(String codi){
-        codis_usuaris_connectats.remove(codi);
-    }
-    
     private static int generaCodi(){
         int codi;
+        int codiAdminRepetit;
+        int codiUsuariRepetit;
         do{
             codi = (int) Math.floor(Math.random()*(CODI_FINAL - CODI_INICI + 1) + CODI_INICI);
-        } while (trobaCodiAdmin(String.valueOf(codi)) != false && trobaCodiUsuari(String.valueOf(codi)) != false);
+            codiAdminRepetit = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, Integer.toString(codi));
+            codiUsuariRepetit = controladorUsuaris.trobaCodi(taula_usuaris_connectats, totalUsuaris, Integer.toString(codi));
+        } while (codiAdminRepetit != -1 && codiUsuariRepetit != -1);
         return codi;    
     }
     
-    private static int obtenirIndexAdmin(String codi) {
-        
-        int indexCodi = codis_admin_connectats.indexOf(codi);
-        return indexCodi;
-
-    }
-    
-    
+ 
+     
    
 }
