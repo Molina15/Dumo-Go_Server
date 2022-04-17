@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 
-public class MainClient {
+public class MainClient_proves {
     
     public static void main(String[] args) throws Exception {
         //Socket socket = null; 
@@ -67,12 +67,14 @@ public class MainClient {
             HashMap<String, String> afegir_admin = new HashMap<String, String>();
             HashMap<String, String> esborrar_admin = new HashMap<String, String>();
             HashMap<String, String> tancar_sessio = new HashMap<String, String>();
+            HashMap<String, String> canvia_password = new HashMap<String, String>();
              
             while(online){
                 
                 //Llegim del servidor
-                System.out.println("Que vols fer? \n\n 1 = afegir llibre \n 2 = esborrar_llibre \n 3 = comprobar usuari"
-                + "\n 4 = comprobar admin \n 5 = afegir usuari \n 6 = esborra_usuari \n 7 = afegir_admin \n 8 = esborra_admin \n 9 = desconectar client \n-> ");
+                System.out.print("Que vols fer? \n\n 1 = afegir llibre \n 2 = esborrar_llibre \n 3 = comprobar usuari"
+                + "\n 4 = comprobar admin \n 5 = afegir usuari \n 6 = esborra_usuari \n 7 = afegir_admin \n 8 = esborra_admin \n 9 = desconectar client \n"
+                        + " 10 = canvia_password \n -> ");
                 
                 entrada = sc.nextLine();
                 if ("1".equals(entrada)){
@@ -108,7 +110,7 @@ public class MainClient {
                     
                 }else if ("3".equals(entrada)){
                     comprobar_usuari.put("accio", "comprobar_usuari");
-                    comprobar_usuari.put("nom_user","Oscar39");
+                    comprobar_usuari.put("nom_usuari","Marc45");
                     comprobar_usuari.put("password", "1234");
                     mapOutputStream.writeObject(comprobar_usuari);
                     System.out.println("Esperant confirmacio...");
@@ -119,7 +121,7 @@ public class MainClient {
                 }else if ("4".equals(entrada)){
                     comprobar_admin.put("accio", "comprobar_admin");
                     comprobar_admin.put("nom_admin","molina15");
-                    comprobar_admin.put("password", "1234");
+                    comprobar_admin.put("password", "123456");
                     mapOutputStream.writeObject(comprobar_admin);
                     System.out.println("Esperant confirmacio...");
                     resposta = (int) mapInputStream.readObject();
@@ -131,11 +133,11 @@ public class MainClient {
                     Date date = new Date(miliseconds);
                     afegir_usuari.put("codi", codi);
                     afegir_usuari.put("accio", "afegir_usuari");
-                    afegir_usuari.put("nom_user", "Oscar39");
+                    afegir_usuari.put("nom_user", "Pep25");
                     afegir_usuari.put("password", "1234");
-                    afegir_usuari.put("dni", "d7766555h");
+                    afegir_usuari.put("dni", "77766555H");
                     afegir_usuari.put("data_alta", date.toString());
-                    afegir_usuari.put("correu", "oscar@gmail.com");
+                    afegir_usuari.put("correu", "pep@gmail.com");
                     afegir_usuari.put("admin_alta", "molina15");
                     afegir_usuari.put("nom_cognoms", "Oscar Tomas");
                     //enviem la consulta al servidor
@@ -194,9 +196,23 @@ public class MainClient {
                     online = false;
                 }
                 
+                else if ("10".equals(entrada)){
+                    canvia_password.put("codi", codi);
+                    canvia_password.put("accio", "canvia_password");
+                    canvia_password.put("password", "123456");
+                    canvia_password.put("password_nou", "12345");
+                    mapOutputStream.writeObject(canvia_password);
+                    System.out.println("Esperant confirmacio...");
+                    //rebem la resposta del servidor
+                    resposta = (int) mapInputStream.readObject();
+                    System.out.println("Servidor: " + resposta);
+                }
+                
                 if (resposta == SESSIO_CADUCADA){
                     online = false;
                 }
+                
+                
             }
             socket.close();
             yourOutputStream.close();
@@ -204,9 +220,9 @@ public class MainClient {
             
             
         } catch (UnknownHostException ex) {
-            Logger.getLogger(MainClient.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MainClient_proves.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(MainClient.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MainClient_proves.class.getName()).log(Level.SEVERE, null, ex);
         }
     }    
 }

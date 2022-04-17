@@ -34,10 +34,6 @@ public class AccionsServidor {
 
     private static Connection connexio;
     
-    
-    private static List<String> codis_admin_connectats = new ArrayList<String>();
-    private static List<String> codis_usuaris_connectats = new ArrayList<String>();
-    
     private static String taula_admin_connectats[][] = new String[10][3];
     private static String taula_usuaris_connectats[][] = new String[100][3];
     private static int totalUsuaris = 0;
@@ -182,8 +178,8 @@ public class AccionsServidor {
                     break;
                     
                 case "afegir_usuari":
-                    posicioUsuari = controladorUsuaris.trobaCodi(taula_usuaris_connectats, totalUsuaris, dades.get("codi"));
-                    if (posicioUsuari != -1){
+                    posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
+                    if (posicioAdmin != -1){
                         resposta = controladorSQL.afegeixNouUsuari(stmt, dades);
                     }else{
                         resposta = SESSIO_CADUCADA;
@@ -219,6 +215,23 @@ public class AccionsServidor {
                     }else{
                         resposta = SESSIO_CADUCADA;
                     }
+                    
+                case "canvia_password":
+                    posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
+                    posicioUsuari = controladorUsuaris.trobaCodi(taula_usuaris_connectats, totalUsuaris, dades.get("codi"));
+                    if (posicioAdmin != -1){
+                        
+                        dades.put("nom_admin", taula_admin_connectats[posicioAdmin][1]);
+                        resposta = controladorSQL.canviaPasswordAdmin(stmt, dades);
+                        
+                    }else if(posicioUsuari != -1){
+                        
+                        dades.put("nom_usuari", taula_usuaris_connectats[posicioUsuari][1]);
+                        //controladorSQL.canviaPasswordUsuaris(stmt, dades);
+                        
+                    }else{
+                        resposta = SESSIO_CADUCADA;
+                    }  
             }
 
         }catch (SQLException ex) {

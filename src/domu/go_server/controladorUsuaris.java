@@ -5,6 +5,9 @@
  */
 package domu.go_server;
 
+import java.sql.Statement;
+import java.util.HashMap;
+
 /**
  *
  * @author Adrià Molina Inglada
@@ -79,4 +82,6 @@ public class controladorUsuaris {
         }
         System.out.println("");
     }
+
+    
 }

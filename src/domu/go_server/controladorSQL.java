@@ -52,6 +52,10 @@ public class controladorSQL {
     
     private static int ADMIN_ESBORRAT = 4000;
     private static int ADMIN_INEXISTENT = 4010;
+    
+    private static int CANVI_PASSWORD_ADMIN_OK = 9000;
+    private static int CONTRASENYA_ADMIN_NO_VALIDA = 9010;
+    
  
     /**
     Clase que permite validar un DNI.  
@@ -59,6 +63,11 @@ public class controladorSQL {
     @return true si DNI es correcto.
     Desarrollado por Manuel Mato.
     */
+    
+    public static boolean comprobaPassword(String password){
+        return (password.length() >= 4);
+    }
+    
     public static boolean comprobaFormatDNI(String dni) {
         
         boolean resposta;
@@ -98,7 +107,7 @@ public class controladorSQL {
     
     public static int comprobarUsuari(Statement stmt, HashMap<String, String> dades) throws SQLException{
         int resposta;
-        String nom_user = dades.get("nom_user");
+        String nom_user = dades.get("nom_usuari");
         String password = dades.get("password");
         String sentencia = "SELECT nom_user, password FROM usuaris WHERE nom_user = '"+nom_user+"';";
         //System.out.println(sentencia.toString());
@@ -107,8 +116,7 @@ public class controladorSQL {
             ResultSet rs = stmt.executeQuery(sentencia);
             if (rs.next()){
                 //System.out.println(password+", "+rs.getString(2));
-                password = rs.getString(2);
-                if (password.toString().equals(password.toString())){
+                if (rs.getString(2).equals(password.toString())){
                     //si l'usuari existeix i la contrasenya és correcta
                     resposta = USUARI_OK;
 
@@ -140,9 +148,8 @@ public class controladorSQL {
         try{
             ResultSet rs = stmt.executeQuery(sentencia);
             if (rs.next()){
-                //System.out.println(password+", "+rs.getString(2));
-                password = rs.getString(2);
-                if (password.toString().equals(password.toString())){
+                System.out.println(password+", "+rs.getString(2));
+                if (rs.getString(2).equals(password.toString())){
                     //si l'usuari existeix i la contrasenya es correcta
                     resposta = ADMIN_OK;
 
@@ -184,8 +191,8 @@ public class controladorSQL {
         
         comprobador = comprobarUsuari(stmt, dades);
         
-        if (comprobador == 8010){
-            if (password.length() >= 4){
+        if (comprobador == USUARI_NO_EXISTEIX){
+            if (comprobaPassword(password)){
                 if(comprobaFormatDNI(dni)){
                     if(trobaDNI(stmt, dni, taula) == false){
                         if(comprobaFormatEmail(correu)){
@@ -236,8 +243,8 @@ public class controladorSQL {
         
         comprobador = comprobarAdmin(stmt, dades);
         
-        if (comprobador == 7010){
-            if (password.length() >= 4){
+        if (comprobador == ADMIN_NO_EXISTEIX){
+            if (comprobaPassword(password)){
                 if(comprobaFormatDNI(dni)){
                     if(trobaDNI(stmt, dni, taula) == false){
                         if(comprobaFormatEmail(correu)){
@@ -361,6 +368,29 @@ public class controladorSQL {
         }
         return resposta;
      } 
+
+    public static int canviaPasswordAdmin(Statement stmt, HashMap<String, String> dades) throws SQLException {
+        int comproba = comprobarAdmin(stmt, dades);
+        int resposta;
+        if (comproba == ADMIN_OK){
+            String novaPassword = dades.get("password_nou");
+            String nom_admin = dades.get("nom_admin");
+            String sentencia = "UPDATE administradors SET password = '"+novaPassword+"' WHERE nom_admin = '"+nom_admin+"';";
+            System.out.println(sentencia.toString());
+            try{
+                stmt.executeUpdate(sentencia);
+                resposta = CANVI_PASSWORD_ADMIN_OK;
+            }catch (SQLException ex) {
+                System.out.println("Error: "+ ex);
+                resposta = ERROR_EN_EL_SERVIDOR;
+            }
+        }else{
+            resposta = CONTRASENYA_ADMIN_NO_VALIDA;
+        }
+        
+        return resposta;
+        
+    }
         
 
     
