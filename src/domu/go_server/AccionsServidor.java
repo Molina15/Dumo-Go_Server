@@ -89,7 +89,7 @@ public class AccionsServidor {
                     if (resultat == 8000){
                         resposta = generaCodi(); //funcio que generara el codi
                         strCodi = String.valueOf(resposta);
-                        nom_usuari = dades.get("nom_usuari");
+                        nom_usuari = dades.get("user_name");
                         taula_usuaris_connectats = controladorUsuaris.afegirSessio(taula_usuaris_connectats, totalUsuaris, strCodi, nom_usuari);
                         totalUsuaris++;
                         controladorUsuaris.mostra(taula_usuaris_connectats, totalUsuaris);
@@ -149,10 +149,10 @@ public class AccionsServidor {
                     break;
                     
                 case "esborrar_usuari":
-                    posicioUsuari = controladorUsuaris.trobaCodi(taula_usuaris_connectats, totalUsuaris, dades.get("codi"));
-                    if (posicioUsuari != -1){
+                    posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
+                    if (posicioAdmin != -1){
                         resposta = controladorSQL.esborraUsuari(stmt, dades);
-                        posicioUsuari = controladorUsuaris.trobaUsuari(taula_usuaris_connectats, totalUsuaris, dades.get("nom_user"));
+                        posicioUsuari = controladorUsuaris.trobaUsuari(taula_usuaris_connectats, totalUsuaris, dades.get("user_name"));
                         if (posicioUsuari != -1){
                             controladorUsuaris.eliminarSessio(taula_usuaris_connectats, totalUsuaris, posicioUsuari);
                             totalUsuaris--;
@@ -226,8 +226,8 @@ public class AccionsServidor {
                         
                     }else if(posicioUsuari != -1){
                         
-                        dades.put("nom_usuari", taula_usuaris_connectats[posicioUsuari][1]);
-                        //controladorSQL.canviaPasswordUsuaris(stmt, dades);
+                        dades.put("user_name", taula_usuaris_connectats[posicioUsuari][1]);
+                        resposta = controladorSQL.canviaPasswordUsuari(stmt, dades);
                         
                     }else{
                         resposta = SESSIO_CADUCADA;

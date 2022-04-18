@@ -56,6 +56,9 @@ public class controladorSQL {
     private static int CANVI_PASSWORD_ADMIN_OK = 9000;
     private static int CONTRASENYA_ADMIN_NO_VALIDA = 9010;
     
+    private static int CANVI_PASSWORD_USUARI_OK = 1100;
+    private static int CONTRASENYA_USUARI_NO_VALIDA = 1110;
+    
  
     /**
     Clase que permite validar un DNI.  
@@ -107,7 +110,7 @@ public class controladorSQL {
     
     public static int comprobarUsuari(Statement stmt, HashMap<String, String> dades) throws SQLException{
         int resposta;
-        String nom_user = dades.get("nom_usuari");
+        String nom_user = dades.get("user_name");
         String password = dades.get("password");
         String sentencia = "SELECT nom_user, password FROM usuaris WHERE nom_user = '"+nom_user+"';";
         //System.out.println(sentencia.toString());
@@ -116,7 +119,7 @@ public class controladorSQL {
             ResultSet rs = stmt.executeQuery(sentencia);
             if (rs.next()){
                 //System.out.println(password+", "+rs.getString(2));
-                if (rs.getString(2).equals(password.toString())){
+                if (rs.getString(2).equals(password)){
                     //si l'usuari existeix i la contrasenya és correcta
                     resposta = USUARI_OK;
 
@@ -149,7 +152,7 @@ public class controladorSQL {
             ResultSet rs = stmt.executeQuery(sentencia);
             if (rs.next()){
                 System.out.println(password+", "+rs.getString(2));
-                if (rs.getString(2).equals(password.toString())){
+                if (rs.getString(2).equals(password)){
                     //si l'usuari existeix i la contrasenya es correcta
                     resposta = ADMIN_OK;
 
@@ -178,7 +181,7 @@ public class controladorSQL {
         int comprobador;
         String taula = "usuaris";
         
-        String nom_user = dades.get("nom_user");
+        String nom_user = dades.get("user_name");
         String password = dades.get("password");
         String dni = dades.get("dni").toUpperCase();
         String data_alta = dades.get("data_alta");
@@ -278,7 +281,7 @@ public class controladorSQL {
     }
     
     public static int esborraUsuari(Statement stmt, HashMap<String, String> dades) throws SQLException{
-        String nom_user = dades.get("nom_user");
+        String nom_user = dades.get("user_name");
         int resposta;
         int comprobador = comprobarUsuari(stmt, dades);
         try{
@@ -294,7 +297,6 @@ public class controladorSQL {
             resposta = ERROR_EN_EL_SERVIDOR;
         }
         return resposta;
-        
     }
     
     
@@ -386,6 +388,29 @@ public class controladorSQL {
             }
         }else{
             resposta = CONTRASENYA_ADMIN_NO_VALIDA;
+        }
+        
+        return resposta;
+        
+    }
+    
+    public static int canviaPasswordUsuari(Statement stmt, HashMap<String, String> dades) throws SQLException {
+        int comproba = comprobarUsuari(stmt, dades);
+        int resposta;
+        if (comproba == USUARI_OK){
+            String novaPassword = dades.get("password_nou");
+            String nom_usuari = dades.get("user_name");
+            String sentencia = "UPDATE usuaris SET password = '"+novaPassword+"' WHERE nom_user = '"+nom_usuari+"';";
+            System.out.println(sentencia.toString());
+            try{
+                stmt.executeUpdate(sentencia);
+                resposta = CANVI_PASSWORD_USUARI_OK;
+            }catch (SQLException ex) {
+                System.out.println("Error: "+ ex);
+                resposta = ERROR_EN_EL_SERVIDOR;
+            }
+        }else{
+            resposta = CONTRASENYA_USUARI_NO_VALIDA;
         }
         
         return resposta;
