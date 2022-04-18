@@ -53,11 +53,9 @@ public class controladorSQL {
     private static int ADMIN_ESBORRAT = 4000;
     private static int ADMIN_INEXISTENT = 4010;
     
-    private static int CANVI_PASSWORD_ADMIN_OK = 9000;
-    private static int CONTRASENYA_ADMIN_NO_VALIDA = 9010;
+    private static int CANVI_PASSWORD_OK = 9000;
+    private static int CONTRASENYA_NO_VALIDA = 9010;
     
-    private static int CANVI_PASSWORD_USUARI_OK = 1100;
-    private static int CONTRASENYA_USUARI_NO_VALIDA = 1110;
     
  
     /**
@@ -381,13 +379,13 @@ public class controladorSQL {
             System.out.println(sentencia.toString());
             try{
                 stmt.executeUpdate(sentencia);
-                resposta = CANVI_PASSWORD_ADMIN_OK;
+                resposta = CANVI_PASSWORD_OK;
             }catch (SQLException ex) {
                 System.out.println("Error: "+ ex);
                 resposta = ERROR_EN_EL_SERVIDOR;
             }
         }else{
-            resposta = CONTRASENYA_ADMIN_NO_VALIDA;
+            resposta = CONTRASENYA_NO_VALIDA;
         }
         
         return resposta;
@@ -404,13 +402,13 @@ public class controladorSQL {
             System.out.println(sentencia.toString());
             try{
                 stmt.executeUpdate(sentencia);
-                resposta = CANVI_PASSWORD_USUARI_OK;
+                resposta = CANVI_PASSWORD_OK;
             }catch (SQLException ex) {
                 System.out.println("Error: "+ ex);
                 resposta = ERROR_EN_EL_SERVIDOR;
             }
         }else{
-            resposta = CONTRASENYA_USUARI_NO_VALIDA;
+            resposta = CONTRASENYA_NO_VALIDA;
         }
         
         return resposta;
