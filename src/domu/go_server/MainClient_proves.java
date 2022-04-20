@@ -73,7 +73,7 @@ public class MainClient_proves {
             while(online){
                 
                 //Llegim del servidor
-                System.out.print("\nQue vols fer? \n 1 = afegir llibre \n 2 = esborrar_llibre \n 3 = comprobar usuari"
+                System.out.print("\nQue vols fer? \n 1 = afegir llibre (beta) \n 2 = esborrar_llibre (beta) \n 3 = comprobar usuari"
                 + "\n 4 = comprobar admin \n 5 = afegir usuari \n 6 = esborra_usuari \n 7 = afegir_admin \n 8 = esborra_admin \n 9 = desconectar client \n"
                         + " 10 = canvia_password \n -> ");
                 
@@ -190,6 +190,7 @@ public class MainClient_proves {
                     tancar_sessio.put("codi", codi);
                     tancar_sessio.put("accio", "tancar_sessio");
                     mapOutputStream.writeObject(tancar_sessio);
+                    System.out.println(tancar_sessio);
                     System.out.println("Esperant confirmacio...");
                     //rebem la resposta del servidor
                     resposta = (int) mapInputStream.readObject();

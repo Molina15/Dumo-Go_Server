@@ -41,7 +41,8 @@ public class ThreadClient extends Thread {
     //private PrintWriter out;
     private String enter;
     private int resposta_servidor;
-    private int SESSIO_CADUCADA = 10;
+    private static final int SESSIO_CADUCADA = 10;
+    private static final int SESSIO_TANCADA = 20;
     private int i;
     
 
@@ -79,7 +80,7 @@ public class ThreadClient extends Thread {
             try{
                 msg = (HashMap) mapInputStream.readObject();
                 resposta_servidor = AccionsServidor.realitza_accio(msg);
-                if (resposta_servidor == SESSIO_CADUCADA){
+                if (resposta_servidor == SESSIO_CADUCADA || resposta_servidor == SESSIO_TANCADA){
                     //enviem resposta de codi de sesio no valid. 
                     mapOutputStream.writeObject(resposta_servidor);
                     client.close();

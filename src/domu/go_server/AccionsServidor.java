@@ -120,7 +120,8 @@ public class AccionsServidor {
                         resposta = resultat;
                     }
                     break;
-                     
+                
+                //Funcio en estat BETA
                 case "afegir_llibre":
                     posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
                     if (posicioAdmin != -1){
@@ -135,7 +136,8 @@ public class AccionsServidor {
                         resposta = SESSIO_CADUCADA;
                     }
                     break;
-
+                        
+                //Funcio en estat BETA
                 case "esborrar_llibre":
                     posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
                     if (posicioAdmin != -1){
@@ -196,6 +198,7 @@ public class AccionsServidor {
                     break;
                     
                 case "tancar_sessio":
+                    System.out.println("Tancant la sessio...");
                     posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
                     System.out.println("Posicio admin: "+posicioAdmin);
                     posicioUsuari = controladorUsuaris.trobaCodi(taula_usuaris_connectats, totalUsuaris, dades.get("codi"));
@@ -215,6 +218,7 @@ public class AccionsServidor {
                     }else{
                         resposta = SESSIO_CADUCADA;
                     }
+                    break;
                     
                 case "canvia_password":
                     posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
@@ -231,7 +235,9 @@ public class AccionsServidor {
                         
                     }else{
                         resposta = SESSIO_CADUCADA;
-                    }  
+                    } 
+                    
+                    break;
             }
 
         }catch (SQLException ex) {
