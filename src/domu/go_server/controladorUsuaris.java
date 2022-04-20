@@ -66,7 +66,7 @@ public class controladorUsuaris {
            llistaUsuarisConnectats[posicioUsuari][j] = llistaUsuarisConnectats[totalUsuaris - 1][j];
            llistaUsuarisConnectats[totalUsuaris - 1][j] = null;
         }
-        System.out.println("admin esborrat...");
+        System.out.println("Tancant sessio...");
         mostra(llistaUsuarisConnectats, totalUsuaris);
         return llistaUsuarisConnectats;
     }

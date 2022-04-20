@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package domu.go_server;
+
 
 
 /**
@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 
-public class MainClient_proves {
+public class MainClient_proves_2 {
     
     public static void main(String[] args) throws Exception {
         //Socket socket = null; 
@@ -111,7 +111,7 @@ public class MainClient_proves {
                     
                 }else if ("3".equals(entrada)){
                     comprobar_usuari.put("accio", "comprobar_usuari");
-                    comprobar_usuari.put("user_name","Joan25");
+                    comprobar_usuari.put("user_name","Pep25");
                     comprobar_usuari.put("password", "1234");
                     mapOutputStream.writeObject(comprobar_usuari);
                     System.out.println("Esperant confirmacio...");
@@ -121,8 +121,8 @@ public class MainClient_proves {
                 
                 }else if ("4".equals(entrada)){
                     comprobar_admin.put("accio", "comprobar_admin");
-                    comprobar_admin.put("nom_admin","molina15");
-                    comprobar_admin.put("password", "12345");
+                    comprobar_admin.put("nom_admin","marc45");
+                    comprobar_admin.put("password", "1234");
                     mapOutputStream.writeObject(comprobar_admin);
                     System.out.println("Esperant confirmacio...");
                     resposta = (int) mapInputStream.readObject();
@@ -134,13 +134,13 @@ public class MainClient_proves {
                     Date date = new Date(miliseconds);
                     afegir_usuari.put("codi", codi);
                     afegir_usuari.put("accio", "afegir_usuari");
-                    afegir_usuari.put("user_name", "Joan25");
+                    afegir_usuari.put("user_name", "Hugo89");
                     afegir_usuari.put("password", "1234");
-                    afegir_usuari.put("dni", "77733333H");
+                    afegir_usuari.put("dni", "77766555H");
                     afegir_usuari.put("data_alta", date.toString());
-                    afegir_usuari.put("correu", "joan@gmail.com");
+                    afegir_usuari.put("correu", "helena@gmail.com");
                     afegir_usuari.put("admin_alta", "molina15");
-                    afegir_usuari.put("nom_cognoms", "Oscar Tomas");
+                    afegir_usuari.put("nom_cognoms", "Hugo Tomas");
                     //enviem la consulta al servidor
                     mapOutputStream.writeObject(afegir_usuari);
                     System.out.println("Esperant confirmacio...");
@@ -151,7 +151,7 @@ public class MainClient_proves {
                 }else if ("6".equals(entrada)){
                     esborrar_usuari.put("codi", codi);
                     esborrar_usuari.put("accio", "esborrar_usuari");
-                    esborrar_usuari.put("user_name", "Oscar39");
+                    esborrar_usuari.put("user_name", "Marc45");
                     mapOutputStream.writeObject(esborrar_usuari);
                     System.out.println("Esperant confirmacio...");
                     //rebem la resposta del servidor
