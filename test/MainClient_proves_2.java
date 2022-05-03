@@ -179,7 +179,7 @@ public class MainClient_proves_2 {
                 }else if ("8".equals(entrada)){
                     esborrar_admin.put("codi", codi);
                     esborrar_admin.put("accio", "esborrar_admin");
-                    esborrar_admin.put("nom_admin", "marçal35");
+                    esborrar_admin.put("nom_admin", "molina15");
                     mapOutputStream.writeObject(esborrar_admin);
                     System.out.println("Esperant confirmacio...");
                     //rebem la resposta del servidor

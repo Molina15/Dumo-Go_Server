@@ -37,10 +37,10 @@ public class MainServer {
                 System.out.println("Servidor a l'espera de connexions.");
                 socket = serverSocket.accept();
                 System.out.println("Client "+i+ " amb la IP " + socket.getInetAddress().getHostName() + " connectat.");
-                i++;
                 //instancia a connexió client
                 ThreadClient cc = new ThreadClient(socket, i);
                 cc.start();
+                i++;
             }  
             
 

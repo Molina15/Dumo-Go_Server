@@ -25,6 +25,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -40,7 +41,8 @@ public class ThreadClient extends Thread {
     private ObjectOutputStream mapOutputStream;
     //private PrintWriter out;
     private String enter;
-    private int resposta_servidor;
+    //private int resposta_servidor;
+    private Object resposta_servidor;
     private static final int SESSIO_CADUCADA = 10;
     private static final int SESSIO_TANCADA = 20;
     private int i;
@@ -63,30 +65,79 @@ public class ThreadClient extends Thread {
     
     @Override
     public void run() {
-        HashMap<String, String> msg = new HashMap<String, String>();
+        HashMap<String, String> msg = new HashMap<>();
         boolean online = true;
         int codi = 0;
-        
+        String str_codi_resposta = null;
+        int codi_resposta = 0;
+        HashMap<String, String> respostaMap = new HashMap<>();
+        ArrayList respostaArrayMap = new ArrayList();
+        Boolean esUnNumero = false;
+        Boolean esUnMap = false;
+
         try {
                 AccionsServidor.obrir();
                 //AccionsServidor.obrir();   
-        } catch (SQLException ex) {
-            Logger.getLogger(ThreadClient.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (JSchException ex) {
+        } catch (SQLException | JSchException ex) {
             Logger.getLogger(ThreadClient.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         while(online){
             try{
-                msg = (HashMap) mapInputStream.readObject();
-                resposta_servidor = AccionsServidor.realitza_accio(msg);
-                if (resposta_servidor == SESSIO_CADUCADA || resposta_servidor == SESSIO_TANCADA){
-                    //enviem resposta de codi de sesio no valid. 
-                    mapOutputStream.writeObject(resposta_servidor);
+                
+                msg = (HashMap) mapInputStream.readObject(); //rep la peticio del client
+                resposta_servidor = AccionsServidor.realitza_accio(msg); //envia la processar la peticio
+                
+                esUnNumero = false;
+                esUnMap = false;
+                //comproba si la resposta del client es un enter o un map
+                if (resposta_servidor.getClass() == Integer.class){
+                    esUnNumero = true;
+                }
+                if (resposta_servidor.getClass() == HashMap.class){
+                    esUnMap = true;
+                }
+                
+                
+                //si el codi resposta es un enter, el copia en una variable int, sino en una variable map i extreu el codi enter
+                if (esUnNumero){
+                    codi_resposta = (int) resposta_servidor;
+                }else if(esUnMap){
+                    respostaMap = (HashMap) resposta_servidor;
+                    str_codi_resposta = respostaMap.get("codi_retorn");
+                    codi_resposta = Integer.valueOf(str_codi_resposta);
+                }else{
+                    respostaArrayMap = (ArrayList) resposta_servidor;
+                    respostaMap = (HashMap) respostaArrayMap.get(0);
+                    str_codi_resposta = respostaMap.get("codi_retorn");
+                    codi_resposta = Integer.valueOf(str_codi_resposta);
+                }
+                
+                
+                //comproba que el codi no hagi caducat
+                if (codi_resposta == SESSIO_CADUCADA || codi_resposta == SESSIO_TANCADA){
+                    System.out.println("Codi de sessio caducat: "+ codi_resposta);
+                    //enviem resposta de codi de sesio no valid. Sempre es un int (revisar)
+                    //puc enviar l'enter o puc enviar el map amb el codi d'error, depenent el que esperi el client
+                    if(esUnNumero){
+                        mapOutputStream.writeObject(codi_resposta);
+                    }else if(esUnMap){
+                        System.out.println("Resposta Map: "+ respostaMap);
+                        mapOutputStream.writeObject(respostaMap);
+                    }else{
+                        mapOutputStream.writeObject(respostaArrayMap);
+                    }
                     client.close();
                 }else{
-                    mapOutputStream.writeObject(resposta_servidor);
-                    
+                    if(esUnNumero){
+                        System.out.println("Resposta Numerica: "+ codi_resposta);
+                        mapOutputStream.writeObject(codi_resposta);
+                    }else if(esUnMap){
+                        System.out.println("Resposta Map: "+ respostaMap);
+                        mapOutputStream.writeObject(respostaMap);
+                    }else{
+                        mapOutputStream.writeObject(respostaArrayMap);
+                    }
                 }
 
                 

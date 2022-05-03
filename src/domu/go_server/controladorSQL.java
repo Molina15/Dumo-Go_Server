@@ -6,11 +6,13 @@
 package domu.go_server;
 
 import com.jcraft.jsch.JSchException;
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,7 +37,7 @@ public class controladorSQL {
     private static int NOM_USUARI_NO_VALID = 1010;
     private static int FORMAT_PASSWORD_NO_VALID = 1020;
     private static int FORMAT_DNI_INCORRECTE = 1030;
-    private static int DNI_JA_EXISTENT = 1041;
+    private static int DNI_JA_EXISTENT = 1031;
     private static int FORMAT_EMAIL_INCORRECTE = 1040;
     private static int EMAIL_JA_EXISTENT = 1041;
     
@@ -43,7 +45,7 @@ public class controladorSQL {
     private static int NOM_ADMIN_NO_VALID = 2010;
     private static int FORMAT_PASSWORD_ADMIN_NO_VALID = 2020;
     private static int FORMAT_DNI_ADMIN_INCORRECTE = 2030;
-    private static int DNI_ADMIN_JA_EXISTENT = 2041;
+    private static int DNI_ADMIN_JA_EXISTENT = 2031;
     private static int FORMAT_EMAIL_ADMIN_INCORRECTE = 2040;
     private static int EMAIL_ADMIN_JA_EXISTENT = 2041;
     
@@ -55,6 +57,8 @@ public class controladorSQL {
     
     private static int CANVI_PASSWORD_OK = 9000;
     private static int CONTRASENYA_NO_VALIDA = 9010;
+    
+    public static int MAX_LLISTA = 5;
     
     
  
@@ -185,10 +189,16 @@ public class controladorSQL {
         String data_alta = dades.get("data_alta");
         String correu = dades.get("correu");
         String admin_alta = dades.get("admin_alta");
-        String nom_cognoms = dades.get("nom_cognoms");
+        String nom = dades.get("nom");
+        String cognoms = dades.get("cognoms");
+        String direccio = dades.get("direccio");
+        String pais = dades.get("pais");
+        String telefon = dades.get("telefon");
+        String data_naixement = dades.get("data_naixement");
         
-        String sentencia = "INSERT INTO public.usuaris(nom_user, password, dni, data_alta, correu, admin_alta, nom_cognoms)"
-                + " VALUES ('"+nom_user+"','"+password+"','"+dni+"','"+data_alta+"','"+correu+"','"+admin_alta+"','"+nom_cognoms+"');";
+        String sentencia = "INSERT INTO public.usuaris(nom_user, password, dni, data_alta, correu, admin_alta, nom, cognoms, direccio, pais, telefon, data_naixement)"
+                + " VALUES ('"+nom_user+"','"+password+"','"+dni+"','"+data_alta+"','"+correu+"','"+admin_alta+"','"+nom+"',"
+                + "'"+cognoms+"','"+direccio+"','"+pais+"','"+telefon+"','"+data_naixement+"');";
         
         comprobador = comprobarUsuari(stmt, dades);
         
@@ -234,13 +244,19 @@ public class controladorSQL {
         
         String nom_admin = dades.get("nom_admin");
         String password = dades.get("password");
-        String nom_cognoms = dades.get("nom_cognoms");
+        String nom = dades.get("nom");
         String dni = dades.get("dni").toUpperCase();
         String correu = dades.get("correu");
         String admin_alta = dades.get("admin_alta");
+        String cognoms = dades.get("cognoms");
+        String direccio = dades.get("direccio");
+        String pais = dades.get("pais");
+        String telefon = dades.get("telefon");
+        String data_naixement = dades.get("data_naixement");
         
-        String sentencia = "INSERT INTO "+ taula + "(nom_admin, password, nom_cognoms, dni, correu, admin_alta)"
-                + " VALUES ('"+nom_admin+"','"+password+"','"+nom_cognoms+"','"+dni+"','"+correu+"','"+admin_alta+"');";
+        String sentencia = "INSERT INTO "+ taula + "(nom_admin, password, nom, dni, correu, admin_alta, cognoms, direccio, pais, telefon, data_naixement)"
+                + " VALUES ('"+nom_admin+"','"+password+"','"+nom+"','"+dni+"','"+correu+"','"+admin_alta+"',"
+                + "'"+cognoms+"','"+direccio+"','"+pais+"','"+telefon+"','"+data_naixement+"');";
         
         comprobador = comprobarAdmin(stmt, dades);
         
@@ -359,6 +375,7 @@ public class controladorSQL {
         try{
             ResultSet rs = stmt.executeQuery(sentencia);
             if (rs.next()){
+                System.out.println("Correu: " + rs.next());
                 resposta = true;
             }else{
                 resposta = false;
@@ -414,7 +431,188 @@ public class controladorSQL {
         return resposta;
         
     }
-        
-
     
+    public static int modificaUsuari(Statement stmt, HashMap<String, String> dades, String taula) throws SQLException {
+        return 0;
+        
+    }
+    
+   public static HashMap<String, String> mostraUsuari(Statement stmt, HashMap<String, String> dades) throws SQLException { 
+        HashMap<String, String> respostaMap = new HashMap<String, String>();;
+        String codi_resposta;
+        String nom_user = dades.get("user_name");
+        String sentencia = "SELECT * FROM usuaris WHERE nom_user = '"+nom_user+"';";
+        System.out.println(sentencia.toString());
+        try{
+            ResultSet rs = stmt.executeQuery(sentencia);
+            if (rs.next()){
+                codi_resposta = "5000";
+                String numero_soci = rs.getString("id");
+                String nom = rs.getString("nom");
+                String dni = rs.getString("dni");
+                String data_alta = rs.getString("data_alta");
+                String correu = rs.getString("correu");
+                String admin_alta = rs.getString("admin_alta");
+                String cognoms = rs.getString("cognoms");
+                String direccio = rs.getString("direccio");
+                String pais = rs.getString("pais");
+                String telefon = rs.getString("telefon");
+                String data_naixement = rs.getString("data_naixement");
+                
+                System.out.println("Nom trobat: "+ nom +" "+ cognoms);
+
+                respostaMap.put("numero_soci", numero_soci);
+                respostaMap.put("user_name", nom_user);
+                respostaMap.put("nom", nom);
+                respostaMap.put("cognoms", cognoms);
+                respostaMap.put("dni", dni);
+                respostaMap.put("data_naixement", data_naixement);
+                respostaMap.put("direccio", direccio);
+                respostaMap.put("pais", pais);
+                respostaMap.put("data_alta", data_alta);
+                respostaMap.put("telefon", telefon);
+                respostaMap.put("correu", correu);
+                respostaMap.put("admin_alta", admin_alta);
+                
+            }else{
+                codi_resposta = Integer.toString(USUARI_NO_EXISTEIX);
+            }
+        }catch(SQLException ex){
+            System.out.println("Error: "+ ex);
+            codi_resposta = Integer.toString(ERROR_EN_EL_SERVIDOR);
+        }
+        
+        
+        respostaMap.put("codi_retorn", codi_resposta);
+        System.out.println(respostaMap);
+        return respostaMap;
+   }
+   
+   public static HashMap<String, String> mostraAdmin(Statement stmt, HashMap<String, String> dades) throws SQLException { 
+        HashMap<String, String> respostaMap = new HashMap<String, String>();
+        String codi_resposta;
+        String nom_admin = dades.get("nom_admin");
+        String sentencia = "SELECT * FROM administradors WHERE nom_admin = '"+nom_admin+"';";
+        System.out.println(sentencia.toString());
+        try{
+            ResultSet rs = stmt.executeQuery(sentencia);
+            if (rs.next()){
+                codi_resposta = "6000";
+                String numero_soci = rs.getString("id");
+                String nom = rs.getString("nom");
+                String dni = rs.getString("dni");
+                String correu = rs.getString("correu");
+                String admin_alta = rs.getString("admin_alta");
+                String cognoms = rs.getString("cognoms");
+                String direccio = rs.getString("direccio");
+                String pais = rs.getString("pais");
+                String telefon = rs.getString("telefon");
+                String data_naixement = rs.getString("data_naixement");
+                
+                System.out.println("Nom admin trobat: "+ nom +" "+ cognoms);
+
+                respostaMap.put("numero_soci", numero_soci);
+                respostaMap.put("nom_admin", nom_admin);
+                respostaMap.put("nom", nom);
+                respostaMap.put("cognoms", cognoms);
+                respostaMap.put("dni", dni);
+                respostaMap.put("data_naixement", data_naixement);
+                respostaMap.put("direccio", direccio);
+                respostaMap.put("pais", pais);
+                respostaMap.put("telefon", telefon);
+                respostaMap.put("correu", correu);
+                respostaMap.put("admin_alta", admin_alta);
+                
+            }else{
+                codi_resposta = Integer.toString(ADMIN_NO_EXISTEIX);
+            }
+        }catch(SQLException ex){
+            System.out.println("Error: "+ ex);
+            codi_resposta = Integer.toString(ERROR_EN_EL_SERVIDOR);
+        }
+        
+        respostaMap.put("codi_retorn", codi_resposta);
+        System.out.println(respostaMap);
+        return respostaMap;
+   }
+   
+      public static ArrayList llistaUsuaris(Statement stmt, HashMap<String, String> dades) throws SQLException { 
+        String codi_resposta = null;
+        String sentencia = "select nom_user from usuaris order by nom_user;";
+        System.out.println(sentencia.toString());
+        ArrayList respostaArrayMap = new ArrayList();
+        String nom_user;
+        HashMap<String, String> aux_user_map = new HashMap<String, String>();
+        try{
+            ResultSet rs = stmt.executeQuery(sentencia);
+            ArrayList llistaNoms = new ArrayList();
+            while(rs.next()){
+                llistaNoms.add(rs.getString("nom_user"));
+            }
+            int i = 0;
+            while (i < llistaNoms.size()){
+                nom_user = (String) llistaNoms.get(i);
+                System.out.println("nom: "+nom_user);
+                aux_user_map.put("user_name", nom_user);
+                respostaArrayMap.add(mostraUsuari(stmt, aux_user_map));
+                i++;
+            }
+            codi_resposta = "1100";
+        }catch(SQLException ex){
+            System.out.println("Error: "+ ex);
+            codi_resposta = Integer.toString(ERROR_EN_EL_SERVIDOR);
+        }
+        aux_user_map = (HashMap) respostaArrayMap.get(0);
+        aux_user_map.put("codi_retorn", codi_resposta);
+        respostaArrayMap.set(0, aux_user_map);
+        int j = 0;
+        System.out.println("\n Llista d'usuaris per enviar:");
+        while(j < respostaArrayMap.size()){
+            System.out.println(respostaArrayMap.get(j));
+            j++;
+        }
+        
+        return respostaArrayMap;
+    }
+      
+     public static ArrayList llistaAdmins(Statement stmt, HashMap<String, String> dades) throws SQLException { 
+        String codi_resposta = null;
+        String sentencia = "select nom_admin from administradors order by nom_admin;";
+        System.out.println(sentencia.toString());
+        ArrayList respostaArrayMap = new ArrayList();
+        String nom_admin;
+        HashMap<String, String> aux_admin_map = new HashMap<String, String>();
+        try{
+            ResultSet rs = stmt.executeQuery(sentencia);
+            ArrayList llistaNoms = new ArrayList();
+            while(rs.next()){
+                llistaNoms.add(rs.getString("nom_admin"));
+            }
+            int i = 0;
+            while (i < llistaNoms.size()){
+                nom_admin = (String) llistaNoms.get(i);
+                System.out.println("nom: "+nom_admin);
+                aux_admin_map.put("nom_admin", nom_admin);
+                respostaArrayMap.add(mostraAdmin(stmt, aux_admin_map));
+                i++;
+            }
+            codi_resposta = "1100";
+        }catch(SQLException ex){
+            System.out.println("Error: "+ ex);
+            codi_resposta = Integer.toString(ERROR_EN_EL_SERVIDOR);
+        }
+        aux_admin_map = (HashMap) respostaArrayMap.get(0);
+        aux_admin_map.put("codi_retorn", codi_resposta);
+        respostaArrayMap.set(0, aux_admin_map);
+        int j = 0;
+        System.out.println("\n Llista d'admins per enviar:");
+        while(j < respostaArrayMap.size()){
+            System.out.println(respostaArrayMap.get(j));
+            j++;
+        }
+        
+        return respostaArrayMap;
+    }
+
+        
 }

@@ -22,6 +22,7 @@ import java.util.Properties;
 import java.util.stream.IntStream;
 import java.util.Arrays;  
 import domu.go_server.controladorUsuaris;
+import java.sql.Array;
 
 
 /**
@@ -69,32 +70,39 @@ public class AccionsServidor {
         }
     }
    
-    public static int realitza_accio(HashMap<String, String> dades) throws SQLException{
+    public static Object realitza_accio(HashMap<String, String> dades) throws SQLException{
         String sentencia = null;
-        Statement stmt = connexio.createStatement(); //Usamos create... no prepare...
-        int resposta = 0;
+        Statement stmt = connexio.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+                                  ResultSet.CONCUR_UPDATABLE); //Usamos create... no prepare...
+        Object resposta = null;
+        HashMap<String, String> respostaMap = new HashMap<String, String>();
+        ArrayList respostaArrayMap = new ArrayList();
         int resultat = 0;
         String strCodi;
         String nom_usuari;
         String nom_admin;
-        int posicioAdmin;
-        int posicioUsuari;
-        System.out.println(dades);
+        int posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
+        int posicioUsuari = controladorUsuaris.trobaCodi(taula_usuaris_connectats, totalUsuaris, dades.get("codi"));
+        System.out.println("Map d'entrada: " + dades);
 
         try{
             switch(dades.get("accio")){
                 // rep HashMap amb les claus(accio, nom_user, password)
+                
                 case "comprobar_usuari":
                     resultat = controladorSQL.comprobarUsuari(stmt, dades);
                     if (resultat == 8000){
-                        resposta = generaCodi(); //funcio que generara el codi
-                        strCodi = String.valueOf(resposta);
-                        nom_usuari = dades.get("user_name");
-                        taula_usuaris_connectats = controladorUsuaris.afegirSessio(taula_usuaris_connectats, totalUsuaris, strCodi, nom_usuari);
-                        totalUsuaris++;
-                        controladorUsuaris.mostra(taula_usuaris_connectats, totalUsuaris);
-                        //codis_usuaris_connectats.add(String.valueOf(resposta));
-                        //System.out.println(codis_usuaris_connectats);
+                        posicioUsuari = controladorUsuaris.trobaUsuari(taula_usuaris_connectats, totalUsuaris, dades.get("user_name"));
+                        if(posicioUsuari == -1){
+                            resposta = generaCodi(); //funcio que generara el codi
+                            strCodi = String.valueOf(resposta);
+                            nom_usuari = dades.get("user_name");
+                            taula_usuaris_connectats = controladorUsuaris.afegirSessio(taula_usuaris_connectats, totalUsuaris, strCodi, nom_usuari);
+                            totalUsuaris++;
+                            controladorUsuaris.mostra(taula_usuaris_connectats, totalUsuaris);
+                        }else{
+                            resposta = 8030;
+                        }
                     }else{
                         //enviem codi d'error
                         resposta = resultat;
@@ -105,16 +113,17 @@ public class AccionsServidor {
                 case "comprobar_admin":
                     resultat = controladorSQL.comprobarAdmin(stmt, dades);
                     if (resultat == 7000){
-                        resposta = generaCodi(); //funcio que generara el codi
-                        strCodi = String.valueOf(resposta);
-                        nom_admin = dades.get("nom_admin");
-                        taula_admin_connectats = controladorUsuaris.afegirSessio(taula_admin_connectats, totalAdmin, strCodi, nom_admin);
-                        totalAdmin++;
-                        controladorUsuaris.mostra(taula_admin_connectats, totalAdmin);
-                        //codis_admin_connectats.add(String.valueOf(resposta));
-                        //noms_admin_connectats.add(dades.get("nom_admin"));
-                        //System.out.println("Codis admin: " + codis_admin_connectats);
-                        
+                        posicioAdmin = controladorUsuaris.trobaUsuari(taula_admin_connectats, totalAdmin, dades.get("nom_admin"));
+                        if(posicioAdmin == -1){
+                            resposta = generaCodi(); //funcio que generara el codi
+                            strCodi = String.valueOf(resposta);
+                            nom_admin = dades.get("nom_admin");
+                            taula_admin_connectats = controladorUsuaris.afegirSessio(taula_admin_connectats, totalAdmin, strCodi, nom_admin);
+                            totalAdmin++;
+                            controladorUsuaris.mostra(taula_admin_connectats, totalAdmin);
+                        }else{
+                            resposta = 7030;
+                        }
                     }else{ 
                         //enviem codi d'error
                         resposta = resultat;
@@ -198,10 +207,8 @@ public class AccionsServidor {
                     break;
                     
                 case "tancar_sessio":
-                    System.out.println("Tancant la sessio...");
-                    posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
-                    System.out.println("Posicio admin: "+posicioAdmin);
-                    posicioUsuari = controladorUsuaris.trobaCodi(taula_usuaris_connectats, totalUsuaris, dades.get("codi"));
+                    System.out.println("Tancant la sessio...");                   
+                    System.out.println("Posicio admin: "+posicioAdmin);                 
                     System.out.println("Posicio usuari: "+ posicioUsuari);
                     if (posicioAdmin != -1){
                         
@@ -221,8 +228,6 @@ public class AccionsServidor {
                     break;
                     
                 case "canvia_password":
-                    posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
-                    posicioUsuari = controladorUsuaris.trobaCodi(taula_usuaris_connectats, totalUsuaris, dades.get("codi"));
                     if (posicioAdmin != -1){
                         
                         dades.put("nom_admin", taula_admin_connectats[posicioAdmin][1]);
@@ -238,15 +243,80 @@ public class AccionsServidor {
                     } 
                     
                     break;
+                    
+                         
+                case "modifica_usuari":
+                    posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
+                    posicioUsuari = controladorUsuaris.trobaCodi(taula_usuaris_connectats, totalUsuaris, dades.get("codi"));
+                    if (posicioAdmin != -1){
+                        //TODO
+                    }
+                    break;
+                    
+                case "mostra_usuari":
+                    //System.out.println((posicioAdmin != -1) +" "+ (posicioUsuari != -1));
+                    if (posicioAdmin != -1 || posicioUsuari != -1){
+                        respostaMap = controladorSQL.mostraUsuari(stmt, dades);
+                    }else{
+                        respostaMap.put("codi_retorn", String.valueOf(SESSIO_CADUCADA));
+                    } 
+                    resposta = respostaMap;
+                    break;
+                    
+                case "mostra_admin":
+                    //System.out.println((posicioAdmin != -1) +" "+ (posicioUsuari != -1));
+                    if (posicioAdmin != -1 || posicioUsuari != -1){
+                        respostaMap = controladorSQL.mostraAdmin(stmt, dades);
+                    }else{
+                        respostaMap.put("codi_retorn", String.valueOf(SESSIO_CADUCADA));
+                    } 
+                    resposta = respostaMap;
+                    break;
+                    
+                case "llista_usuaris":
+                    if (posicioAdmin != -1 || posicioUsuari != -1){
+                        System.out.println("Buscant a la llista d'usuaris...");
+                        respostaArrayMap = controladorSQL.llistaUsuaris(stmt, dades);
+                    }else{
+                        respostaMap.put("codi_retorn", String.valueOf(SESSIO_CADUCADA));
+                        respostaArrayMap.set(0, respostaMap);
+                    } 
+                    resposta = respostaArrayMap;
+                    break;
+                 
+                case "llista_admins":
+                    if (posicioAdmin != -1){
+                        System.out.println("Buscant a la llista d'administradors...");
+                        respostaArrayMap = controladorSQL.llistaAdmins(stmt, dades);
+                    }else{
+                        respostaMap.put("codi_retorn", String.valueOf(SESSIO_CADUCADA));
+                        respostaArrayMap.set(0, respostaMap);
+                    } 
+                    resposta = respostaArrayMap;
+                    break;
+                    
             }
 
         }catch (SQLException ex) {
             System.out.println("Error: "+ ex);
         }
         
-        
         return resposta;
+        /**
+        if (resposta != -10){
+            System.out.println("Resposta numerica: "+resposta);
+            return resposta;
+        }else if(respostaMap != null){
+            System.out.println("Resposta Map: "+respostaMap);
+            return respostaMap;
+        }else{
+            System.out.println("Resposta d'ArrayMap: "+respostaArrayMap);
+            return respostaArrayMap;
+        }
+        //return resposta;
+        **/
     }
+    
     
     private static int generaCodi(){
         int codi;

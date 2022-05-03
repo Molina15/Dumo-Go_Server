@@ -23,6 +23,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.logging.Logger;
@@ -56,6 +57,8 @@ public class MainClient_proves {
             
             boolean online = true;
             int resposta = 0;
+            HashMap<String, String> respostaMap = new HashMap<String, String>();
+            ArrayList respostaArrayMap = new ArrayList();
             String entrada;
             
             HashMap<String, String> afegir_llibre = new HashMap<String, String>();
@@ -69,12 +72,16 @@ public class MainClient_proves {
             HashMap<String, String> tancar_sessio = new HashMap<String, String>();
             HashMap<String, String> canvia_password_admin = new HashMap<String, String>();
             HashMap<String, String> canvia_password_usuari = new HashMap<String, String>();
-             
+            HashMap<String, String> mostra_usuari = new HashMap<String, String>();
+            HashMap<String, String> mostra_admin = new HashMap<String, String>();
+            HashMap<String, String> llista_usuaris = new HashMap<String, String>();
+            HashMap<String, String> llista_admins = new HashMap<String, String>();
+            
             while(online){
                 
                 //Llegim del servidor
-                System.out.print("\nQue vols fer? \n 1 = afegir llibre (beta) \n 2 = esborrar_llibre (beta) \n 3 = comprobar usuari"
-                + "\n 4 = comprobar admin \n 5 = afegir usuari \n 6 = esborra_usuari \n 7 = afegir_admin \n 8 = esborra_admin \n 9 = desconectar client \n"
+                System.out.print("\nQue vols fer? \n 1 = afegir llibre (beta) \t 11 = mostra usuari \n 2 = esborrar_llibre (beta) \t 12 = mostra admin \n 3 = comprobar usuari \t\t 13 = llista usuaris" 
+                + "\n 4 = comprobar admin \t\t 14 = llista usuaris \n 5 = afegir usuari \n 6 = esborra_usuari \n 7 = afegir_admin \n 8 = esborra_admin \n 9 = desconectar client \n"
                         + " 10 = canvia_password \n -> ");
                 
                 entrada = sc.nextLine();
@@ -112,7 +119,7 @@ public class MainClient_proves {
                 }else if ("3".equals(entrada)){
                     comprobar_usuari.put("accio", "comprobar_usuari");
                     comprobar_usuari.put("user_name","Joan25");
-                    comprobar_usuari.put("password", "1234");
+                    comprobar_usuari.put("password", "canviat");
                     mapOutputStream.writeObject(comprobar_usuari);
                     System.out.println("Esperant confirmacio...");
                     resposta = (int) mapInputStream.readObject();
@@ -121,8 +128,8 @@ public class MainClient_proves {
                 
                 }else if ("4".equals(entrada)){
                     comprobar_admin.put("accio", "comprobar_admin");
-                    comprobar_admin.put("nom_admin","marçal35");
-                    comprobar_admin.put("password", "1234");
+                    comprobar_admin.put("nom_admin","molina15");
+                    comprobar_admin.put("password", "12345");
                     mapOutputStream.writeObject(comprobar_admin);
                     System.out.println("Esperant confirmacio...");
                     resposta = (int) mapInputStream.readObject();
@@ -134,13 +141,19 @@ public class MainClient_proves {
                     Date date = new Date(miliseconds);
                     afegir_usuari.put("codi", codi);
                     afegir_usuari.put("accio", "afegir_usuari");
-                    afegir_usuari.put("user_name", "Helena89");
+                    afegir_usuari.put("user_name", "Helena34");
                     afegir_usuari.put("password", "1234");
-                    afegir_usuari.put("dni", "77733883H");
+                    afegir_usuari.put("dni", "77733773H");
                     afegir_usuari.put("data_alta", date.toString());
-                    afegir_usuari.put("correu", "helena@gmail.com");
+                    afegir_usuari.put("correu", "helena23@gmail.com");
                     afegir_usuari.put("admin_alta", "molina15");
-                    afegir_usuari.put("nom_cognoms", "Helena Tomas");
+                    afegir_usuari.put("nom", "Helena");
+                    afegir_usuari.put("cognoms", "Ruiz");
+                    afegir_usuari.put("direccio", "Av de la pera");
+                    afegir_usuari.put("pais", "Honduras");
+                    afegir_usuari.put("telefon", "989878675");
+                    afegir_usuari.put("data_naixement", "1999-12-23");
+                    
                     //enviem la consulta al servidor
                     mapOutputStream.writeObject(afegir_usuari);
                     System.out.println("Esperant confirmacio...");
@@ -168,7 +181,13 @@ public class MainClient_proves {
                     afegir_admin.put("dni", "97766554h");
                     afegir_admin.put("correu", "marcal@gmail.com");
                     afegir_admin.put("admin_alta", "molina15");
-                    afegir_admin.put("nom_cognoms", "Marc Marc");
+                    afegir_admin.put("nom", "Marçal");
+                    afegir_admin.put("cognoms", "Perez");
+                    afegir_admin.put("data_naixement", "1989-11-11");
+                    afegir_admin.put("direccio", "Av del paraiso");
+                    afegir_admin.put("pais", "Moldavia");
+                    afegir_admin.put("telefon", "989876745");
+                    
                     //enviem la consulta al servidor
                     mapOutputStream.writeObject(afegir_admin);
                     System.out.println("Esperant confirmacio...");
@@ -210,8 +229,75 @@ public class MainClient_proves {
                     System.out.println("Servidor: " + resposta);
                 }
                 
+                else if ("11".equals(entrada)){
+                    mostra_usuari.put("codi", codi);
+                    mostra_usuari.put("accio", "mostra_usuari");
+                    mostra_usuari.put("user_name", "Pep25");
+                    mapOutputStream.writeObject(mostra_usuari);
+                    System.out.println("Esperant confirmacio...");
+                    //rebem la resposta del servidor
+                    Object respostaObj = mapInputStream.readObject();
+                    respostaMap = ( HashMap<String, String>) respostaObj;
+                    System.out.println("Servidor: " + respostaMap);
+                    
+                    resposta = Integer.valueOf(respostaMap.get("codi_retorn"));
+                }
                 
+                else if ("12".equals(entrada)){
+                    mostra_admin.put("codi", codi);
+                    mostra_admin.put("accio", "mostra_admin");
+                    mostra_admin.put("nom_admin", "marçal35");
+                    mapOutputStream.writeObject(mostra_admin);
+                    System.out.println("Esperant confirmacio...");
+                    //rebem la resposta del servidor
+                    Object respostaObj = mapInputStream.readObject();
+                    respostaMap = ( HashMap<String, String>) respostaObj;
+                    System.out.println("Servidor: " + respostaMap);
+                    
+                    resposta = Integer.valueOf(respostaMap.get("codi_retorn"));
+                }
+                
+                else if ("13".equals(entrada)){
+                    llista_usuaris.put("codi", codi);
+                    llista_usuaris.put("accio", "llista_usuaris");
+                    llista_usuaris.put("contador", "0");
+                    mapOutputStream.writeObject(llista_usuaris);
+                    System.out.println("Esperant confirmacio...");
+                    //rebem la resposta del servidor 
+                    Object respostaObj = mapInputStream.readObject();
+                    respostaArrayMap = (ArrayList) respostaObj;
+                    int j = 0;
+                    while(j < respostaArrayMap.size()){
+                        System.out.println(respostaArrayMap.get(j));
+                        j++;
+                    }
+                    
+                    respostaMap = (HashMap) respostaArrayMap.get(0);
+                    resposta = Integer.valueOf(respostaMap.get("codi_retorn"));
+                }
+                
+                
+                else if ("14".equals(entrada)){
+                    llista_admins.put("codi", codi);
+                    llista_admins.put("accio", "llista_admins");
+                    llista_admins.put("contador", "0");
+                    mapOutputStream.writeObject(llista_admins);
+                    System.out.println("Esperant confirmacio...");
+                    //rebem la resposta del servidor
+                    Object respostaObj = mapInputStream.readObject();
+                    respostaArrayMap = (ArrayList) respostaObj;
+                    int j = 0;
+                    while(j < respostaArrayMap.size()){
+                        System.out.println(respostaArrayMap.get(j));
+                        j++;
+                    }
+                    
+                    respostaMap = (HashMap) respostaArrayMap.get(0);
+                    resposta = Integer.valueOf(respostaMap.get("codi_retorn"));
+                } 
+                    
                 if (resposta == SESSIO_CADUCADA){
+                    System.out.println("Tancant sessio...");
                     online = false;
                 }
                 

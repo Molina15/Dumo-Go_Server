@@ -29,14 +29,16 @@ public class controladorUsuaris {
         String codi_usuari = "";
         int posicio = 0;
         
-        for (int x=0; x < totalUsuaris; x++){
-            codi_usuari = llistaUsuarisConnectats[x][0]; //la segona columna sempre contindra el nom dels usuaris
-            System.out.println(codi_usuari+" - "+codiBuscat);
-            System.out.println(codi_usuari.equals(codiBuscat));
-            if (codi_usuari.equals(codiBuscat)){
-                return posicioUsuari;
+        if (codiBuscat != null){
+            for (int x=0; x < totalUsuaris; x++){
+                codi_usuari = llistaUsuarisConnectats[x][0]; //la segona columna sempre contindra el nom dels usuaris
+                System.out.println(codi_usuari+" - "+codiBuscat);
+                System.out.println(codi_usuari.equals(codiBuscat));
+                if (codi_usuari.equals(codiBuscat)){
+                    return posicioUsuari;
+                }
+                posicioUsuari++;
             }
-            posicioUsuari++;
         }
         return -1;
     }
