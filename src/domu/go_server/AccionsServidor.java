@@ -122,6 +122,7 @@ public class AccionsServidor {
                             totalAdmin++;
                             controladorUsuaris.mostra(taula_admin_connectats, totalAdmin);
                         }else{
+                            System.out.println("Hola, hola");
                             resposta = 7030;
                         }
                     }else{ 
@@ -242,16 +243,7 @@ public class AccionsServidor {
                         resposta = SESSIO_CADUCADA;
                     } 
                     
-                    break;
-                    
-                         
-                case "modifica_usuari":
-                    posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
-                    posicioUsuari = controladorUsuaris.trobaCodi(taula_usuaris_connectats, totalUsuaris, dades.get("codi"));
-                    if (posicioAdmin != -1){
-                        //TODO
-                    }
-                    break;
+                    break;              
                     
                 case "mostra_usuari":
                     //System.out.println((posicioAdmin != -1) +" "+ (posicioUsuari != -1));
@@ -293,6 +285,22 @@ public class AccionsServidor {
                         respostaArrayMap.set(0, respostaMap);
                     } 
                     resposta = respostaArrayMap;
+                    break;
+                    
+                case "modifica_usuari":
+                    if (posicioAdmin != -1){
+                        resposta = controladorSQL.modificaUsuari(stmt, dades);
+                    }else{
+                        resposta = SESSIO_CADUCADA;
+                    }
+                    break;
+                    
+                case "modifica_admin":
+                    if (posicioAdmin != -1){
+                        resposta = controladorSQL.modificaAdmin(stmt, dades);
+                    }else{
+                        resposta = SESSIO_CADUCADA;
+                    }
                     break;
                     
             }

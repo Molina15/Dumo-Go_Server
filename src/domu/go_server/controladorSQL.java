@@ -55,8 +55,22 @@ public class controladorSQL {
     private static int ADMIN_ESBORRAT = 4000;
     private static int ADMIN_INEXISTENT = 4010;
     
+    private static int MOSTRA_USUARI_OK = 5000;
+    private static int USUARI_NO_VALID = 5010;
+    
+    private static int MOSTRA_ADMIN_OK = 6000;
+    private static int ADMIN_NO_VALID = 6010;
+    
     private static int CANVI_PASSWORD_OK = 9000;
     private static int CONTRASENYA_NO_VALIDA = 9010;
+    
+    private static int LLISTA_USUARIS_OK = 1100;
+    private static int LLISTA_ADMINS_OK = 1200;
+    
+    private static int MODIFICACIO_OK = 1300;
+    private static int FORMAT_EMAIL = 1310;
+    private static int FORMAT_DNI = 1320;
+    private static int FORMAT_PASSWORD = 1330;
     
     public static int MAX_LLISTA = 5;
     
@@ -432,11 +446,6 @@ public class controladorSQL {
         
     }
     
-    public static int modificaUsuari(Statement stmt, HashMap<String, String> dades, String taula) throws SQLException {
-        return 0;
-        
-    }
-    
    public static HashMap<String, String> mostraUsuari(Statement stmt, HashMap<String, String> dades) throws SQLException { 
         HashMap<String, String> respostaMap = new HashMap<String, String>();;
         String codi_resposta;
@@ -446,7 +455,7 @@ public class controladorSQL {
         try{
             ResultSet rs = stmt.executeQuery(sentencia);
             if (rs.next()){
-                codi_resposta = "5000";
+                codi_resposta = Integer.toString(MOSTRA_USUARI_OK);
                 String numero_soci = rs.getString("id");
                 String nom = rs.getString("nom");
                 String dni = rs.getString("dni");
@@ -475,7 +484,7 @@ public class controladorSQL {
                 respostaMap.put("admin_alta", admin_alta);
                 
             }else{
-                codi_resposta = Integer.toString(USUARI_NO_EXISTEIX);
+                codi_resposta = Integer.toString(USUARI_NO_VALID);
             }
         }catch(SQLException ex){
             System.out.println("Error: "+ ex);
@@ -497,7 +506,7 @@ public class controladorSQL {
         try{
             ResultSet rs = stmt.executeQuery(sentencia);
             if (rs.next()){
-                codi_resposta = "6000";
+                codi_resposta = Integer.toString(MOSTRA_ADMIN_OK);
                 String numero_soci = rs.getString("id");
                 String nom = rs.getString("nom");
                 String dni = rs.getString("dni");
@@ -524,7 +533,7 @@ public class controladorSQL {
                 respostaMap.put("admin_alta", admin_alta);
                 
             }else{
-                codi_resposta = Integer.toString(ADMIN_NO_EXISTEIX);
+                codi_resposta = Integer.toString(ADMIN_NO_VALID);
             }
         }catch(SQLException ex){
             System.out.println("Error: "+ ex);
@@ -557,7 +566,7 @@ public class controladorSQL {
                 respostaArrayMap.add(mostraUsuari(stmt, aux_user_map));
                 i++;
             }
-            codi_resposta = "1100";
+            codi_resposta = Integer.toString(LLISTA_USUARIS_OK);
         }catch(SQLException ex){
             System.out.println("Error: "+ ex);
             codi_resposta = Integer.toString(ERROR_EN_EL_SERVIDOR);
@@ -575,7 +584,7 @@ public class controladorSQL {
         return respostaArrayMap;
     }
       
-     public static ArrayList llistaAdmins(Statement stmt, HashMap<String, String> dades) throws SQLException { 
+    public static ArrayList llistaAdmins(Statement stmt, HashMap<String, String> dades) throws SQLException { 
         String codi_resposta = null;
         String sentencia = "select nom_admin from administradors order by nom_admin;";
         System.out.println(sentencia.toString());
@@ -596,7 +605,7 @@ public class controladorSQL {
                 respostaArrayMap.add(mostraAdmin(stmt, aux_admin_map));
                 i++;
             }
-            codi_resposta = "1100";
+            codi_resposta = Integer.toString(LLISTA_ADMINS_OK);
         }catch(SQLException ex){
             System.out.println("Error: "+ ex);
             codi_resposta = Integer.toString(ERROR_EN_EL_SERVIDOR);
@@ -612,6 +621,76 @@ public class controladorSQL {
         }
         
         return respostaArrayMap;
+    }
+        
+    
+    public static int modificaUsuari(Statement stmt, HashMap<String, String> dades) throws SQLException { 
+        String taula = "usuaris";
+        int resposta = modificaCamps(stmt, dades, taula);
+        return resposta;                
+    }
+    
+    public static int modificaAdmin(Statement stmt, HashMap<String, String> dades) throws SQLException { 
+        String taula = "administradors";
+        System.out.println("Modificant dades de l'administrador...");
+        int resposta = modificaCamps(stmt, dades, taula);
+        return resposta;                
+    }
+          
+    public static int modificaCamps(Statement stmt, HashMap<String, String> dades, String taula) throws SQLException{
+        int resposta = 0;
+        String nouNom, user_name = "";
+        String nom_admin = "";
+        if (taula == "usuaris"){
+            nouNom = dades.get("nou_user_name");
+            user_name = dades.get("user_name");
+            resposta = comprobarUsuari(stmt, dades);
+        }else{
+            nouNom = dades.get("nou_nom_admin");
+            nom_admin = dades.get("nom_admin");
+            resposta = comprobarAdmin(stmt, dades);
+        }
+        String numero_soci = dades.get("numero_soci");
+        String password = dades.get("password");
+        String dni = dades.get("dni").toUpperCase();
+        String correu = dades.get("correu");
+        String nom = dades.get("nom");
+        String cognoms = dades.get("cognoms");
+        String direccio = dades.get("direccio");
+        String pais = dades.get("pais");
+        String telefon = dades.get("telefon");
+        String data_naixement = dades.get("data_naixement");
+
+        if (comprobaPassword(password)){
+            if(comprobaFormatDNI(dni)){
+                if(comprobaFormatEmail(correu)){
+                    resposta = MODIFICACIO_OK;
+                }else{
+                    resposta = FORMAT_EMAIL;
+                }
+            }else{
+                resposta = FORMAT_DNI;
+            }
+        }else{
+            resposta = FORMAT_PASSWORD;
+        }
+        if (resposta == MODIFICACIO_OK){
+            String sentencia;
+            if (taula == "usuaris"){
+                sentencia = "UPDATE "+ taula + " SET (nom_user, password, nom, dni, correu, cognoms, direccio, pais, telefon, data_naixement)"
+                + " = ('"+nouNom+"','"+password+"','"+nom+"','"+dni+"','"+correu+"','"+cognoms+"','"+direccio+"','"+pais+"','"+telefon+"',"
+                + "'"+data_naixement+"') WHERE nom_user = '" +user_name+"';";
+            }else{
+                sentencia = "UPDATE "+ taula + " SET (nom_admin, password, nom, dni, correu, cognoms, direccio, pais, telefon, data_naixement)"
+                + " = ('"+nouNom+"','"+password+"','"+nom+"','"+dni+"','"+correu+"','"+cognoms+"','"+direccio+"','"+pais+"','"+telefon+"',"
+                + "'"+data_naixement+"') WHERE nom_admin = '" +nom_admin+"';";
+            }   
+            System.out.println(sentencia.toString());
+            stmt.executeUpdate(sentencia);
+        }
+
+        return resposta;
+
     }
 
         
