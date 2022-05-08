@@ -10,6 +10,7 @@ import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ import java.util.regex.Pattern;
  */
 public class controladorSQL {
     
-    private static int ERROR_EN_EL_SERVIDOR = 0;
+    public static int ERROR_EN_EL_SERVIDOR = 0;
 
     private static int USUARI_OK = 8000;
     private static int USUARI_NO_EXISTEIX = 8010;
@@ -71,6 +72,19 @@ public class controladorSQL {
     private static int FORMAT_EMAIL = 1310;
     private static int FORMAT_DNI = 1320;
     private static int FORMAT_PASSWORD = 1330;
+    
+    private static int LLIBRE_AFEGIT = 1400;
+    
+    private static int LLIBRE_ESBORRAT = 1500;
+    private static int LLIBRE_NO_TROBAT = 1510;
+    
+    private static int MOSTRA_LLIBRE_OK = 1600;
+    private static int LLIBRE_NO_TRONAT = 1610;
+    
+    private static int LLISTA_LLIBRES_OK = 1700;
+
+    private static int MODIFICA_LLIBRE_OK = 1800;
+    private static int MODIFICA_NO_TROBAT = 1810;
     
     public static int MAX_LLISTA = 5;
     
@@ -385,7 +399,6 @@ public class controladorSQL {
          boolean resposta = false;
         String sentencia = "SELECT correu FROM "+taula+" WHERE correu = '"+correu+"';";
         System.out.println(sentencia.toString());
-        stmt.executeQuery(sentencia);
         try{
             ResultSet rs = stmt.executeQuery(sentencia);
             if (rs.next()){
@@ -692,6 +705,112 @@ public class controladorSQL {
         return resposta;
 
     }
-
+    
+    public static int afegirLlibre(Statement stmt, HashMap<String, String> dades) throws SQLException{
+        String sentencia; 
+        int resposta = 0;
+        sentencia = "INSERT INTO llibres (nom, autor, any_publicacio, tipus, data_alta, admin_alta, descripcio) "
+        + "VALUES ('"+dades.get("nom")+"','"+dades.get("autor")+"','"+dades.get("any_publicacio")+"',"
+        + "'"+dades.get("tipus")+"','"+dades.get("data_alta")+"','"+dades.get("admin_alta")+"','"+dades.get("descripcio")+"');";
         
+        stmt.executeUpdate(sentencia);
+        System.out.println(sentencia.toString());
+        resposta = LLIBRE_AFEGIT;
+        
+        return resposta;
+    }
+        
+    public static int esborraLlibre(Statement stmt, HashMap<String, String> dades) throws SQLException{
+        int resposta = 0;
+        String sentencia;
+        sentencia = "DELETE FROM llibres WHERE id = '"+dades.get("id")+"';";
+        int resultat = stmt.executeUpdate(sentencia);
+        System.out.println(sentencia.toString()+ " "+ resultat);
+        if (resultat == 0){
+            resposta = LLIBRE_NO_TROBAT;
+        }else{
+            resposta = LLIBRE_ESBORRAT;
+        }
+        return resposta;
+    }
+    
+    public static HashMap<String, String> mostraLlibre(Statement stmt, HashMap<String, String> dades) throws SQLException{
+        HashMap<String, String> respostaMap = new HashMap<String, String>();
+        String codi_resposta = "0";
+        String sentencia = "SELECT * FROM llibres WHERE id = '"+dades.get("id")+"';";
+        ResultSet rs = stmt.executeQuery(sentencia);
+        ResultSetMetaData md = rs.getMetaData();
+        int columns = md.getColumnCount();
+        System.out.println(columns+ " "+ md.getColumnName(1));
+        int i = 0;
+        try{
+            while (rs.next()){
+                for( i=1; i<=columns; ++i){
+                    respostaMap.put(md.getColumnName(i), rs.getString(i));
+                }
+                codi_resposta = Integer.toString(MOSTRA_LLIBRE_OK);
+            }
+        }catch(SQLException ex){
+            System.out.println("Error: "+ ex);
+            codi_resposta = Integer.toString(ERROR_EN_EL_SERVIDOR);
+        }
+        if (i == 0){
+            codi_resposta = Integer.toString(LLIBRE_NO_TROBAT);
+        }
+        System.out.println(respostaMap);
+        respostaMap.put("codi_retorn", codi_resposta);
+        return respostaMap;
+    }
+    
+    public static ArrayList llistaLlibres(Statement stmt, HashMap<String, String> dades) throws SQLException { 
+        String codi_resposta = null;
+        String sentencia = "select * from llibres order by nom;";
+        System.out.println(sentencia.toString());
+        ArrayList respostaArrayMap = new ArrayList();
+        HashMap<String, String> aux_user_map = new HashMap<String, String>();
+        ResultSet rs = stmt.executeQuery(sentencia);
+        ResultSetMetaData md = rs.getMetaData();
+        int columns = md.getColumnCount();
+        while(rs.next()){
+            aux_user_map = new HashMap<String, String>();
+            for( int i=1; i<=columns; ++i){
+                aux_user_map.put(md.getColumnName(i), rs.getString(i));
+            } 
+            respostaArrayMap.add(aux_user_map);
+        }   
+        codi_resposta = Integer.toString(LLISTA_LLIBRES_OK);
+        aux_user_map = (HashMap) respostaArrayMap.get(0);
+        aux_user_map.put("codi_retorn", codi_resposta);
+        respostaArrayMap.set(0, aux_user_map);
+        int j = 0;
+        System.out.println("\n Llista de llibres per enviar:");
+        while(j < respostaArrayMap.size()){
+            System.out.println(respostaArrayMap.get(j));
+            j++;
+        }
+        
+        return respostaArrayMap;
+    }
+    
+    public static int modificaLlibre(Statement stmt, HashMap<String, String> dades) throws SQLException { 
+        String referencia = dades.get("nom");
+        String nom = dades.get("nou_nom");
+        String autor = dades.get("autor");
+        String any_publicacio = dades.get("any_publicacio");
+        String tipus= dades.get("tipus");
+        String descripcio = dades.get("descripcio");
+
+        String sentencia = sentencia = "UPDATE llibres SET (nom, autor, any_publicacio, tipus, descripcio)"
+                + " = ('"+nom+"','"+autor+"','"+any_publicacio+"','"+tipus+"','"+descripcio+"') WHERE nom = '" +referencia+"';";
+        int i = stmt.executeUpdate(sentencia);
+        int resposta = 0;
+        if (i != 0){
+            resposta = MODIFICA_LLIBRE_OK;
+        }else{
+            resposta = LLIBRE_NO_TROBAT;
+        }
+        System.out.print(i);
+        return resposta; 
+    }
+
 }

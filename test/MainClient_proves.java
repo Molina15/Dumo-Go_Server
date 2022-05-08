@@ -78,13 +78,14 @@ public class MainClient_proves {
             HashMap<String, String> llista_admins = new HashMap<String, String>();
             HashMap<String, String> modifica_admin = new HashMap<String, String>();
             HashMap<String, String> modifica_usuari = new HashMap<String, String>();
-
+            HashMap<String, String> mostra_llibre = new HashMap<String, String>();
+            HashMap<String, String> llista_llibres = new HashMap<String, String>();
             
             while(online){
                 
                 //Llegim del servidor
                 System.out.print("\nQue vols fer? \n 1 = afegir llibre (beta) \t 11 = mostra usuari \n 2 = esborrar_llibre (beta) \t 12 = mostra admin \n 3 = comprobar usuari \t\t 13 = llista usuaris" 
-                + "\n 4 = comprobar admin \t\t 14 = llista admins \n 5 = afegir usuari \t\t 15 = modifica admin \n 6 = esborra_usuari \t\t 16 = modifica usuari \n 7 = afegir_admin \n 8 = esborra_admin \n 9 = desconectar client \n"
+                + "\n 4 = comprobar admin \t\t 14 = llista admins \n 5 = afegir usuari \t\t 15 = modifica admin \n 6 = esborra_usuari \t\t 16 = modifica usuari \n 7 = afegir_admin \t\t 17 = mostra llibre \n 8 = esborra_admin \t\t 18 = llista llibres \n 9 = desconectar client \t 19 = modifica llibre \n"
                         + " 10 = canvia_password \n -> ");
                 
                 entrada = sc.nextLine();
@@ -99,8 +100,8 @@ public class MainClient_proves {
                     afegir_llibre.put("any_publicacio", "1999");
                     afegir_llibre.put("tipus", "Fantàsia");
                     afegir_llibre.put("data_alta", date.toString());
-                    afegir_llibre.put("reservat_dni", null);
                     afegir_llibre.put("admin_alta", "molina15");
+                    afegir_llibre.put("descripcio", "Un llibre molt guapo.");
                     //enviem la consulta al servidor
                     mapOutputStream.writeObject(afegir_llibre);
                     System.out.println("Esperant confirmacio...");
@@ -111,7 +112,7 @@ public class MainClient_proves {
                 }else if ("2".equals(entrada)){
                     esborra_llibre.put("codi", codi);
                     esborra_llibre.put("accio", "esborrar_llibre");
-                    esborra_llibre.put("nom", "Harry Potter y el Càliz de fuego");
+                    esborra_llibre.put("id", "56");
                     System.out.println(esborra_llibre);
                     mapOutputStream.writeObject(esborra_llibre);
                     System.out.println("Esperant confirmacio...");
@@ -344,10 +345,61 @@ public class MainClient_proves {
                     resposta = (int) mapInputStream.readObject();
                     System.out.println("Servidor: " + resposta);
                 }
+                
+                else if ("17".equals(entrada)){
+                    mostra_llibre.put("codi", codi);
+                    mostra_llibre.put("accio", "mostra_llibre");
+                    mostra_llibre.put("id", "58");
+                    mapOutputStream.writeObject(mostra_llibre);
+                    System.out.println("Esperant confirmacio...");
+                    //rebem la resposta del servidor
+                    Object respostaObj = mapInputStream.readObject();
+                    respostaMap = (HashMap<String, String>) respostaObj;
+                    System.out.println("Servidor: " + respostaMap);
+                    
+                    resposta = Integer.valueOf(respostaMap.get("codi_retorn"));
+                }
                     
                 if (resposta == SESSIO_CADUCADA){
                     System.out.println("Tancant sessio...");
                     online = false;
+                }
+                
+                else if ("18".equals(entrada)){
+                    llista_llibres.put("codi", codi);
+                    llista_llibres.put("accio", "llista_llibres");
+                    mapOutputStream.writeObject(llista_llibres);
+                    System.out.println("Esperant confirmacio...");
+                    //rebem la resposta del servidor
+                    Object respostaObj = mapInputStream.readObject();
+                    respostaArrayMap = (ArrayList) respostaObj;
+                    int j = 0;
+                    while(j < respostaArrayMap.size()){
+                        System.out.println(respostaArrayMap.get(j));
+                        j++;
+                    }
+                    
+                    respostaMap = (HashMap) respostaArrayMap.get(0);
+                    resposta = Integer.valueOf(respostaMap.get("codi_retorn"));
+                }
+                
+                else if ("19".equals(entrada)){
+                    long miliseconds = System.currentTimeMillis();
+                    modifica_admin.put("codi", codi);
+                    modifica_admin.put("accio", "modifica_llibre");
+                    modifica_admin.put("nom", "Harry Potter y el Càliz de fuego");
+                    modifica_admin.put("nou_nom", "Harry Potter y el Càliz de fuego");
+                    modifica_admin.put("autor", "JK. Rowling");
+                    modifica_admin.put("any_publicacio", "1997");
+                    modifica_admin.put("tipus", "Fantàsia/Infantil");
+                    modifica_admin.put("descripcio", "Un llibre sobre un jove mag i els seus amics");
+                    
+                    //enviem la consulta al servidor
+                    mapOutputStream.writeObject(modifica_admin);
+                    System.out.println("Esperant confirmacio...");
+                    //rebem la resposta del servidor
+                    resposta = (int) mapInputStream.readObject();
+                    System.out.println("Servidor: " + resposta);
                 }
                 
                 

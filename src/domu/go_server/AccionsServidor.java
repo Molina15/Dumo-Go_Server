@@ -135,13 +135,7 @@ public class AccionsServidor {
                 case "afegir_llibre":
                     posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
                     if (posicioAdmin != -1){
-                        sentencia = "INSERT INTO llibres (nom, autor, any_publicacio, tipus, data_alta, reservat_dni, admin_alta) "
-                                + "VALUES ('"+dades.get("nom")+"','"+dades.get("autor")+"','"+dades.get("any_publicacio")+"',"
-                                + "'"+dades.get("tipus")+"','"+dades.get("data_alta")+"',"
-                                + "'"+dades.get("reservat_dni")+"','"+dades.get("admin_alta")+"');";
-                        stmt.executeUpdate(sentencia);
-                        System.out.print(sentencia.toString());
-                        resposta = 1;
+                        resposta = controladorSQL.afegirLlibre(stmt, dades);
                     }else{
                         resposta = SESSIO_CADUCADA;
                     }
@@ -149,19 +143,14 @@ public class AccionsServidor {
                         
                 //Funcio en estat BETA
                 case "esborrar_llibre":
-                    posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
                     if (posicioAdmin != -1){
-                        sentencia = "DELETE FROM llibres WHERE nom = '"+dades.get("nom")+"';";
-                        stmt.executeUpdate(sentencia);
-                        System.out.print(sentencia.toString());
-                        resposta = 1;
+                        resposta = controladorSQL.esborraLlibre(stmt, dades);
                     }else{
                         resposta = SESSIO_CADUCADA;
                     }
                     break;
                     
                 case "esborrar_usuari":
-                    posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
                     if (posicioAdmin != -1){
                         resposta = controladorSQL.esborraUsuari(stmt, dades);
                         posicioUsuari = controladorUsuaris.trobaUsuari(taula_usuaris_connectats, totalUsuaris, dades.get("user_name"));
@@ -175,7 +164,6 @@ public class AccionsServidor {
                     break;
                     
                 case "esborrar_admin":
-                    posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
                     if (posicioAdmin != -1){
                         resposta = controladorSQL.esborraAdmin(stmt, dades);
                         posicioAdmin = controladorUsuaris.trobaUsuari(taula_admin_connectats, totalAdmin, dades.get("nom_admin"));
@@ -190,7 +178,6 @@ public class AccionsServidor {
                     break;
                     
                 case "afegir_usuari":
-                    posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
                     if (posicioAdmin != -1){
                         resposta = controladorSQL.afegeixNouUsuari(stmt, dades);
                     }else{
@@ -199,7 +186,6 @@ public class AccionsServidor {
                     break;
                     
                 case "afegir_admin":
-                    posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
                     if (posicioAdmin != -1){
                         resposta = controladorSQL.afegeixNouAdmin(stmt, dades);
                     }else{
@@ -303,26 +289,43 @@ public class AccionsServidor {
                     }
                     break;
                     
+                case "mostra_llibre":
+                    if (posicioAdmin != -1 || posicioUsuari != -1){
+                        respostaMap = controladorSQL.mostraLlibre(stmt, dades);
+                    }else{
+                        respostaMap.put("codi_retorn", String.valueOf(SESSIO_CADUCADA));
+                    }
+                    System.out.println(respostaMap);
+                    resposta = respostaMap;
+                    break;
+                    
+                case "llista_llibres":
+                    if (posicioAdmin != -1 || posicioUsuari != -1){
+                        respostaArrayMap = controladorSQL.llistaLlibres(stmt, dades);
+                    }else{
+                        respostaMap.put("codi_retorn", String.valueOf(SESSIO_CADUCADA));
+                        respostaArrayMap.set(0, respostaMap);
+                    }
+                    resposta = respostaArrayMap;
+                    break;
+                    
+                case "modifica_llibre":
+                   if (posicioAdmin != -1){
+                       resposta = controladorSQL.modificaLlibre(stmt, dades);
+                   }else{
+                       resposta = SESSIO_CADUCADA;
+                   }
+                   break;
+                    
             }
 
         }catch (SQLException ex) {
+            resposta =controladorSQL.ERROR_EN_EL_SERVIDOR;
             System.out.println("Error: "+ ex);
         }
         
         return resposta;
-        /**
-        if (resposta != -10){
-            System.out.println("Resposta numerica: "+resposta);
-            return resposta;
-        }else if(respostaMap != null){
-            System.out.println("Resposta Map: "+respostaMap);
-            return respostaMap;
-        }else{
-            System.out.println("Resposta d'ArrayMap: "+respostaArrayMap);
-            return respostaArrayMap;
-        }
-        //return resposta;
-        **/
+    
     }
     
     

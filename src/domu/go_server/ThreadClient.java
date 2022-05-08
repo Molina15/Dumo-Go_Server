@@ -113,7 +113,6 @@ public class ThreadClient extends Thread {
                     codi_resposta = Integer.valueOf(str_codi_resposta);
                 }
                 
-                
                 //comproba que el codi no hagi caducat
                 if (codi_resposta == SESSIO_CADUCADA || codi_resposta == SESSIO_TANCADA){
                     System.out.println("Codi de sessio caducat: "+ codi_resposta);
