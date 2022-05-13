@@ -7,6 +7,7 @@ package domu.go_server;
 
 import java.sql.Statement;
 import java.util.HashMap;
+import static java.util.concurrent.TimeUnit.DAYS;
 
 /**
  *
@@ -59,6 +60,11 @@ public class controladorUsuaris {
         return -1;
     }
     
+    public static String nomUsuari(String[][] llistaUsuarisConnectats, int totalUsuaris, String codiBuscat){
+        int trobaCodi = trobaCodi(llistaUsuarisConnectats, totalUsuaris, codiBuscat);
+        return llistaUsuarisConnectats[trobaCodi][1];
+    }
+    
     public static String[][] eliminarSessio(String[][] llistaUsuarisConnectats, 
             int totalUsuaris, int posicioUsuari){
         mostra(llistaUsuarisConnectats, totalUsuaris);
@@ -84,6 +90,8 @@ public class controladorUsuaris {
         }
         System.out.println("");
     }
+    
+    
 
     
 }

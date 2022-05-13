@@ -8,6 +8,7 @@ package domu.go_server;
 import com.jcraft.jsch.JSchException;
 import java.sql.Array;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -79,14 +80,15 @@ public class controladorSQL {
     private static int LLIBRE_NO_TROBAT = 1510;
     
     private static int MOSTRA_LLIBRE_OK = 1600;
-    private static int LLIBRE_NO_TRONAT = 1610;
+    private static int MOSTRA_LLIBRE_NO_TROBAT = 1610;
     
     private static int LLISTA_LLIBRES_OK = 1700;
 
     private static int MODIFICA_LLIBRE_OK = 1800;
     private static int MODIFICA_NO_TROBAT = 1810;
     
-    public static int MAX_LLISTA = 5;
+    private static int VALORACIO_OK = 1900;
+    
     
     
  
@@ -755,7 +757,7 @@ public class controladorSQL {
             codi_resposta = Integer.toString(ERROR_EN_EL_SERVIDOR);
         }
         if (i == 0){
-            codi_resposta = Integer.toString(LLIBRE_NO_TROBAT);
+            codi_resposta = Integer.toString(MOSTRA_LLIBRE_NO_TROBAT);
         }
         System.out.println(respostaMap);
         respostaMap.put("codi_retorn", codi_resposta);
@@ -807,10 +809,65 @@ public class controladorSQL {
         if (i != 0){
             resposta = MODIFICA_LLIBRE_OK;
         }else{
-            resposta = LLIBRE_NO_TROBAT;
+            resposta = MODIFICA_NO_TROBAT;
         }
         System.out.print(i);
         return resposta; 
     }
+    
+    public static int puntuaLlibre(Statement stmt, HashMap<String, String> dades) throws SQLException{
+        int valoracio_usuari = Integer.parseInt(dades.get("valoracio_usuari"));
+        String id_llibre = dades.get("id_llibre");
+        System.out.println("Introduïnt valoracio.");
+        String sentencia = "Select valoracio, vots from llibres where id = '"+id_llibre+"';";
+        System.out.println(sentencia.toString());
+        ResultSet rs = stmt.executeQuery(sentencia);
+        int valoracio = -1;
+        int vots = -1;
+        while(rs.next()){
+            valoracio= rs.getInt(1);
+            vots = rs.getInt(2);
+        }
+        System.out.println("Valoracio = "+valoracio+" Vots= "+vots);
+        int suma_valoracio = valoracio*vots;
+        System.out.println("HOLA");
+        int vots_actualitzats = vots + 1;
+        System.out.println("HOLA");
+        int valoracio_actualitzada = (suma_valoracio + valoracio_usuari)/vots_actualitzats;
+        System.out.println("HOLA");
+        sentencia = "Update llibres set (valoracio, vots) = ("+valoracio_actualitzada+", "+vots_actualitzats+") where id = '"+id_llibre+"';";
+        stmt.executeUpdate(sentencia);
+        return VALORACIO_OK;
+    }
+    
+    public static int reservaLLibre(Statement stmt, HashMap<String, String> dades, String userName) throws SQLException{
+        String id_llibre = dades.get("id_llibre");
+        String sentencia = "select DNI from usuaris where nom_user = '"+ userName +"';";
+        System.out.println(sentencia.toString());
+        ResultSet rs = stmt.executeQuery(sentencia);
+        String DNI = null;
+        while (rs.next()){
+            DNI = rs.getString(1);
+        }
+        if (DNI != null){
+            sentencia = "Update llibres set reservat_dni = '"+DNI+"' where id = "+id_llibre+";";
+            System.out.println(sentencia.toString());
+            int resultat;
+            resultat = stmt.executeUpdate(sentencia);
+            if (0 < resultat){
+                long miliseconds = System.currentTimeMillis();
+                Date data = new Date(miliseconds);
+                sentencia = "insert into prestecs (id_llibre, data_reserva) values ('"+id_llibre+"','"+data+"');";
+                resultat = stmt.executeUpdate(sentencia);
+                if (0 < resultat){
+                    return 2100;
+                }
+            }
+        }
+        return 0;
+    }
+    
+    
+
 
 }

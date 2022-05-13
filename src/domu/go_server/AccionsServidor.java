@@ -122,7 +122,6 @@ public class AccionsServidor {
                             totalAdmin++;
                             controladorUsuaris.mostra(taula_admin_connectats, totalAdmin);
                         }else{
-                            System.out.println("Hola, hola");
                             resposta = 7030;
                         }
                     }else{ 
@@ -316,7 +315,24 @@ public class AccionsServidor {
                        resposta = SESSIO_CADUCADA;
                    }
                    break;
+                   
+                case "puntua_llibre":
+                    if (posicioUsuari != -1){
+                        resposta = controladorSQL.puntuaLlibre(stmt, dades);
+                    }else{
+                        resposta = SESSIO_CADUCADA;
+                    }
+                    break;
                     
+                case "reserva_llibre":
+                    if (posicioUsuari != -1){
+                        String codi_sessio = dades.get("codi");
+                        String userName = controladorUsuaris.nomUsuari(taula_usuaris_connectats, totalUsuaris, codi_sessio);
+                        resposta = controladorSQL.reservaLLibre(stmt, dades, userName);
+                    }else{
+                        resposta = SESSIO_CADUCADA;
+                    }
+                    break;
             }
 
         }catch (SQLException ex) {

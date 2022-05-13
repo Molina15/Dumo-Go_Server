@@ -12,6 +12,7 @@
  */
 import java.io.BufferedReader;
 import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -22,12 +23,16 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.sql.Date;
+import java.text.SimpleDateFormat;
+//import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
+import static java.util.concurrent.TimeUnit.DAYS;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.Date;
+import java.util.Locale;
 
 
 public class MainClient_proves {
@@ -80,13 +85,15 @@ public class MainClient_proves {
             HashMap<String, String> modifica_usuari = new HashMap<String, String>();
             HashMap<String, String> mostra_llibre = new HashMap<String, String>();
             HashMap<String, String> llista_llibres = new HashMap<String, String>();
+            HashMap<String, String> puntua_llibre = new HashMap<String, String>();
+            HashMap<String, String> reserva_llibre = new HashMap<String, String>();
             
             while(online){
                 
                 //Llegim del servidor
-                System.out.print("\nQue vols fer? \n 1 = afegir llibre (beta) \t 11 = mostra usuari \n 2 = esborrar_llibre (beta) \t 12 = mostra admin \n 3 = comprobar usuari \t\t 13 = llista usuaris" 
+                System.out.print("\nQue vols fer? \n 1 = afegir llibre \t\t 11 = mostra usuari \n 2 = esborrar_llibre \t\t 12 = mostra admin \n 3 = comprobar usuari \t\t 13 = llista usuaris" 
                 + "\n 4 = comprobar admin \t\t 14 = llista admins \n 5 = afegir usuari \t\t 15 = modifica admin \n 6 = esborra_usuari \t\t 16 = modifica usuari \n 7 = afegir_admin \t\t 17 = mostra llibre \n 8 = esborra_admin \t\t 18 = llista llibres \n 9 = desconectar client \t 19 = modifica llibre \n"
-                        + " 10 = canvia_password \n -> ");
+                        + " 10 = canvia_password \t\t 20 = puntua llibre \n 21 = reserva_llibre \n -> ");
                 
                 entrada = sc.nextLine();
                 if ("1".equals(entrada)){
@@ -401,6 +408,49 @@ public class MainClient_proves {
                     resposta = (int) mapInputStream.readObject();
                     System.out.println("Servidor: " + resposta);
                 }
+                
+                else if ("20".equals(entrada)){
+                    puntua_llibre.put("codi", codi);
+                    puntua_llibre.put("accio", "puntua_llibre");
+                    puntua_llibre.put("id_llibre", "69");
+                    puntua_llibre.put("valoracio_usuari", "5");
+                    //enviem la consulta al servidor
+                    mapOutputStream.writeObject(puntua_llibre);
+                    System.out.println("Esperant confirmacio...");
+                    //rebem la resposta del servidor
+                    resposta = (int) mapInputStream.readObject();
+                    System.out.println("Servidor: " + resposta);
+                }
+                
+                else if("21".equals(entrada)){
+                    reserva_llibre.put("codi", codi);
+                    reserva_llibre.put("accio", "reserva_llibre");
+                    reserva_llibre.put("id_llibre", "69" );
+                    //enviem la consulta al servidor
+                    mapOutputStream.writeObject(reserva_llibre);
+                    System.out.println("Esperant confirmacio...");
+                    //rebem la resposta del servidor
+                    resposta = (int) mapInputStream.readObject();
+                    System.out.println("Servidor: " + resposta);
+                    
+                }
+                
+                else if("22".equals(entrada)){
+                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                    long miliseconds = System.currentTimeMillis();
+                    Date data_actual = new Date(miliseconds);
+                    System.out.println(data_actual.toString());
+                    String data_string = "2022-05-17";
+                    Date data_final = formatter.parse(data_string);
+                    
+                    System.out.println(data_actual.toString()+ " / "+ data_final.toString());
+                    int milisecondsByDay = 86400000;
+                    int dias = (int) ((data_final.getTime()-data_actual.getTime()) / milisecondsByDay);
+                    System.out.println(dias);
+                }
+                
+                
+                
                 
                 
             }
