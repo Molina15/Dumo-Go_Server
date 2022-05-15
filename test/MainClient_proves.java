@@ -87,13 +87,16 @@ public class MainClient_proves {
             HashMap<String, String> llista_llibres = new HashMap<String, String>();
             HashMap<String, String> puntua_llibre = new HashMap<String, String>();
             HashMap<String, String> reserva_llibre = new HashMap<String, String>();
+            HashMap<String, String> retorna_llibre = new HashMap<String, String>();
+            HashMap<String, String> llista_prestecs = new HashMap<String, String>();
+            HashMap<String, String> llista_prestecs_usuari = new HashMap<String, String>();
             
             while(online){
                 
                 //Llegim del servidor
                 System.out.print("\nQue vols fer? \n 1 = afegir llibre \t\t 11 = mostra usuari \n 2 = esborrar_llibre \t\t 12 = mostra admin \n 3 = comprobar usuari \t\t 13 = llista usuaris" 
                 + "\n 4 = comprobar admin \t\t 14 = llista admins \n 5 = afegir usuari \t\t 15 = modifica admin \n 6 = esborra_usuari \t\t 16 = modifica usuari \n 7 = afegir_admin \t\t 17 = mostra llibre \n 8 = esborra_admin \t\t 18 = llista llibres \n 9 = desconectar client \t 19 = modifica llibre \n"
-                        + " 10 = canvia_password \t\t 20 = puntua llibre \n 21 = reserva_llibre \n -> ");
+                        + " 10 = canvia_password \t\t 20 = puntua llibre \n 21 = reserva_llibre \t\t 22 = retorna llibre \n 23 = llista prestecs \t\t 24 = llista prestecs usuari \n-> ");
                 
                 entrada = sc.nextLine();
                 if ("1".equals(entrada)){
@@ -129,8 +132,8 @@ public class MainClient_proves {
                     
                 }else if ("3".equals(entrada)){
                     comprobar_usuari.put("accio", "comprobar_usuari");
-                    comprobar_usuari.put("user_name","Joan25");
-                    comprobar_usuari.put("password", "canviat");
+                    comprobar_usuari.put("user_name","Pep25");
+                    comprobar_usuari.put("password", "12345");
                     mapOutputStream.writeObject(comprobar_usuari);
                     System.out.println("Esperant confirmacio...");
                     resposta = (int) mapInputStream.readObject();
@@ -139,7 +142,7 @@ public class MainClient_proves {
                 
                 }else if ("4".equals(entrada)){
                     comprobar_admin.put("accio", "comprobar_admin");
-                    comprobar_admin.put("nom_admin","marçal3535");
+                    comprobar_admin.put("nom_admin","marçal99");
                     comprobar_admin.put("password", "1234");
                     mapOutputStream.writeObject(comprobar_admin);
                     System.out.println("Esperant confirmacio...");
@@ -187,7 +190,7 @@ public class MainClient_proves {
                     Date date = new Date(miliseconds);
                     afegir_admin.put("codi", codi);
                     afegir_admin.put("accio", "afegir_admin");
-                    afegir_admin.put("nom_admin", "marçal35");
+                    afegir_admin.put("nom_admin", "marçal99");
                     afegir_admin.put("password", "1234");
                     afegir_admin.put("dni", "97766554h");
                     afegir_admin.put("correu", "marcal@gmail.com");
@@ -425,7 +428,7 @@ public class MainClient_proves {
                 else if("21".equals(entrada)){
                     reserva_llibre.put("codi", codi);
                     reserva_llibre.put("accio", "reserva_llibre");
-                    reserva_llibre.put("id_llibre", "69" );
+                    reserva_llibre.put("id_llibre", "57" );
                     //enviem la consulta al servidor
                     mapOutputStream.writeObject(reserva_llibre);
                     System.out.println("Esperant confirmacio...");
@@ -436,6 +439,57 @@ public class MainClient_proves {
                 }
                 
                 else if("22".equals(entrada)){
+                    retorna_llibre.put("codi", codi);
+                    retorna_llibre.put("accio", "retorna_llibre");
+                    retorna_llibre.put("id_llibre", "57" );
+                    //enviem la consulta al servidor
+                    mapOutputStream.writeObject(retorna_llibre);
+                    System.out.println("Esperant confirmacio...");
+                    //rebem la resposta del servidor
+                    resposta = (int) mapInputStream.readObject();
+                    System.out.println("Servidor: " + resposta);
+                    
+                }
+                
+                else if("23".equals(entrada)){
+                    llista_prestecs.put("codi", codi);
+                    llista_prestecs.put("accio", "llista_prestecs");
+                    mapOutputStream.writeObject(llista_prestecs);
+                    System.out.println("Esperant confirmacio...");
+                    //enviem la consulta al servidor
+                    Object respostaObj = mapInputStream.readObject();
+                    respostaArrayMap = (ArrayList) respostaObj;
+                    int j = 0;
+                    while(j < respostaArrayMap.size()){
+                        System.out.println(respostaArrayMap.get(j));
+                        j++;
+                    }
+                    
+                    respostaMap = (HashMap) respostaArrayMap.get(0);
+                    resposta = Integer.valueOf(respostaMap.get("codi_retorn"));
+                    
+                }
+                
+                else if("24".equals(entrada)){
+                    llista_prestecs_usuari.put("codi", codi);
+                    llista_prestecs_usuari.put("accio", "llista_prestecs_usuari");
+                    mapOutputStream.writeObject(llista_prestecs_usuari);
+                    System.out.println("Esperant confirmacio...");
+                    //enviem la consulta al servidor
+                    Object respostaObj = mapInputStream.readObject();
+                    respostaArrayMap = (ArrayList) respostaObj;
+                    int j = 0;
+                    while(j < respostaArrayMap.size()){
+                        System.out.println(respostaArrayMap.get(j));
+                        j++;
+                    }
+                    respostaMap = (HashMap) respostaArrayMap.get(0);
+                    resposta = Integer.valueOf(respostaMap.get("codi_retorn"));
+                    
+                }
+                
+                
+                else if("90".equals(entrada)){
                     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                     long miliseconds = System.currentTimeMillis();
                     Date data_actual = new Date(miliseconds);
@@ -447,6 +501,12 @@ public class MainClient_proves {
                     int milisecondsByDay = 86400000;
                     int dias = (int) ((data_final.getTime()-data_actual.getTime()) / milisecondsByDay);
                     System.out.println(dias);
+                    int aux = (int)  data_final.getTime() + (7*milisecondsByDay);
+                    Date tomorrow = new Date(data_final.getTime() + (1000 * 60 * 60 * 24*7));
+                    //data_final = formatter.parse(Integer.toString(aux));
+                    //System.out.println(data_final.toString());
+                    System.out.println(tomorrow.toString());
+                    
                 }
                 
                 

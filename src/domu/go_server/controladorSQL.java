@@ -89,9 +89,17 @@ public class controladorSQL {
     
     private static int VALORACIO_OK = 1900;
     
+    private static int RESERVAT_OK = 2100;
+    private static int LLIBRE_JA_RESERVAT = 2110;
+    
+    private static int RETORN_OK = 2200;
+    private static int LLIBRE_NO_PRESTAT = 2210;
+    
+    private static int LLISTA_PRESTECS_OK = 2300;
+    
+    private static int LLISTA_PRESTECS_USUARI_OK = 2400;
     
     
- 
     /**
     Clase que permite validar un DNI.  
     Se crea un objeto del tipo ValidadorDNI y se le pasa un String a validar.
@@ -150,7 +158,7 @@ public class controladorSQL {
         try{
             ResultSet rs = stmt.executeQuery(sentencia);
             if (rs.next()){
-                //System.out.println(password+", "+rs.getString(2));
+                //System.out.println(password+", "+resultat.getString(2));
                 if (rs.getString(2).equals(password)){
                     //si l'usuari existeix i la contrasenya és correcta
                     resposta = USUARI_OK;
@@ -692,12 +700,12 @@ public class controladorSQL {
         if (resposta == MODIFICACIO_OK){
             String sentencia;
             if (taula == "usuaris"){
-                sentencia = "UPDATE "+ taula + " SET (nom_user, password, nom, dni, correu, cognoms, direccio, pais, telefon, data_naixement)"
-                + " = ('"+nouNom+"','"+password+"','"+nom+"','"+dni+"','"+correu+"','"+cognoms+"','"+direccio+"','"+pais+"','"+telefon+"',"
+                sentencia = "UPDATE "+ taula + " SET (nom_user, nom, dni, correu, cognoms, direccio, pais, telefon, data_naixement)"
+                + " = ('"+nouNom+"','"+nom+"','"+dni+"','"+correu+"','"+cognoms+"','"+direccio+"','"+pais+"','"+telefon+"',"
                 + "'"+data_naixement+"') WHERE nom_user = '" +user_name+"';";
             }else{
-                sentencia = "UPDATE "+ taula + " SET (nom_admin, password, nom, dni, correu, cognoms, direccio, pais, telefon, data_naixement)"
-                + " = ('"+nouNom+"','"+password+"','"+nom+"','"+dni+"','"+correu+"','"+cognoms+"','"+direccio+"','"+pais+"','"+telefon+"',"
+                sentencia = "UPDATE "+ taula + " SET (nom_admin, nom, dni, correu, cognoms, direccio, pais, telefon, data_naixement)"
+                + " = ('"+nouNom+"','"+nom+"','"+dni+"','"+correu+"','"+cognoms+"','"+direccio+"','"+pais+"','"+telefon+"',"
                 + "'"+data_naixement+"') WHERE nom_admin = '" +nom_admin+"';";
             }   
             System.out.println(sentencia.toString());
@@ -850,22 +858,107 @@ public class controladorSQL {
             DNI = rs.getString(1);
         }
         if (DNI != null){
-            sentencia = "Update llibres set reservat_dni = '"+DNI+"' where id = "+id_llibre+";";
+            sentencia = "Update llibres set reservat_dni = '"+DNI+"' where id = "+id_llibre+" and reservat_dni = 'LLIURE';";
             System.out.println(sentencia.toString());
+            int milisecondsByDay = 86400000;
             int resultat;
             resultat = stmt.executeUpdate(sentencia);
             if (0 < resultat){
                 long miliseconds = System.currentTimeMillis();
-                Date data = new Date(miliseconds);
-                sentencia = "insert into prestecs (id_llibre, data_reserva) values ('"+id_llibre+"','"+data+"');";
+                Date data_actual= new Date(miliseconds);
+                Date data_retorn_teoric = new Date(data_actual.getTime() + (milisecondsByDay * 14));
+                sentencia = "insert into prestecs (id_llibre, data_reserva, data_retorn_teoric) values ('"+id_llibre+"','"+data_actual+"','"+data_retorn_teoric+"');";
                 resultat = stmt.executeUpdate(sentencia);
                 if (0 < resultat){
-                    return 2100;
+                    return RESERVAT_OK; //llibre reservat
                 }
+            }else{
+                return LLIBRE_JA_RESERVAT; //llibre ja reservat
             }
+        }
+        
+        return 0;
+    }
+    
+    public static int retornaLlibre(Statement stmt, HashMap<String, String> dades) throws SQLException{
+        String id_llibre = dades.get("id_llibre");
+        long miliseconds = System.currentTimeMillis();
+        Date data_actual= new Date(miliseconds);
+        String sentencia = "Update prestecs set data_retorn_real = '"+data_actual+"' where id_llibre = "+id_llibre+";";
+        int resultat = stmt.executeUpdate(sentencia);
+        if (0 < resultat){
+            sentencia = "Update llibres set reservat_dni = 'LLIURE' where id = "+id_llibre+";";
+            resultat = stmt.executeUpdate(sentencia);
+             if (0 < resultat){
+                    return RETORN_OK;
+                }
+        }else{
+            return LLIBRE_NO_PRESTAT; //llibre no prestat
         }
         return 0;
     }
+    
+    public static ArrayList llistaPrestecs(Statement stmt, HashMap<String, String> dades) throws SQLException{
+        String sentencia = "select U.nom_user, U.id as \"id_usuari\", P.*  from prestecs P, llibres L, usuaris U where P.id_llibre = L.id and "
+                + "U.dni = L.reservat_dni order by data_retorn_teoric ASC;";
+        System.out.println(sentencia.toString());
+        ArrayList respostaArrayMap = new ArrayList();
+        HashMap<String, String> aux_user_map = new HashMap<String, String>();
+        ResultSet rs = stmt.executeQuery(sentencia);
+        ResultSetMetaData md = rs.getMetaData();
+        int columns = md.getColumnCount();
+        while(rs.next()){
+            aux_user_map = new HashMap<String, String>();
+            for( int i=1; i<=columns; ++i){
+                aux_user_map.put(md.getColumnName(i), rs.getString(i));
+            } 
+            respostaArrayMap.add(aux_user_map);
+        }   
+        String codi_resposta = Integer.toString(LLISTA_PRESTECS_OK); //llista ok
+        aux_user_map = (HashMap) respostaArrayMap.get(0);
+        aux_user_map.put("codi_retorn", codi_resposta);
+        respostaArrayMap.set(0, aux_user_map);
+        int j = 0;
+        System.out.println("\n Llista prestecs per enviar:");
+        while(j < respostaArrayMap.size()){
+            System.out.println(respostaArrayMap.get(j));
+            j++;
+        }
+        
+        return respostaArrayMap;
+    }
+    
+    public static ArrayList llistaPrestecsUsuari(Statement stmt, HashMap<String, String> dades, String userName) throws SQLException{
+        String sentencia = "select U.nom_user, U.id as \"id_usuari\", P.*  from prestecs P, llibres L, usuaris U where P.id_llibre = L.id and "
+                + "U.dni = L.reservat_dni and U.nom_user = '"+ userName +"' order by data_retorn_teoric ASC;";
+        System.out.println(sentencia.toString());
+        ArrayList respostaArrayMap = new ArrayList();
+        HashMap<String, String> aux_user_map = new HashMap<String, String>();
+        ResultSet rs = stmt.executeQuery(sentencia);
+        ResultSetMetaData md = rs.getMetaData();
+        int columns = md.getColumnCount();
+        while(rs.next()){
+            aux_user_map = new HashMap<String, String>();
+            for( int i=1; i<=columns; ++i){
+                aux_user_map.put(md.getColumnName(i), rs.getString(i));
+            } 
+            respostaArrayMap.add(aux_user_map);
+        }   
+        String codi_resposta = Integer.toString(LLISTA_PRESTECS_USUARI_OK); //llista ok
+        aux_user_map = (HashMap) respostaArrayMap.get(0);
+        aux_user_map.put("codi_retorn", codi_resposta);
+        respostaArrayMap.set(0, aux_user_map);
+        int j = 0;
+        System.out.println("\n Llista prestecs per enviar:");
+        while(j < respostaArrayMap.size()){
+            System.out.println(respostaArrayMap.get(j));
+            j++;
+        }
+        
+        return respostaArrayMap;
+    }
+    
+    
     
     
 

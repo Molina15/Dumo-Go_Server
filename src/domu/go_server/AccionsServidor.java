@@ -333,6 +333,39 @@ public class AccionsServidor {
                         resposta = SESSIO_CADUCADA;
                     }
                     break;
+                    
+                case "retorna_llibre":
+                    if (posicioAdmin != -1){
+                        String codi_sessio = dades.get("codi");
+                        resposta = controladorSQL.retornaLlibre(stmt, dades);
+                    }else{
+                        resposta = SESSIO_CADUCADA;
+                    }
+                    break;
+                 
+                case "llista_prestecs":
+                    if (posicioAdmin != -1){
+                        String codi_sessio = dades.get("codi");
+                        respostaArrayMap = controladorSQL.llistaPrestecs(stmt, dades);
+                    }else{
+                        respostaMap.put("codi_retorn", String.valueOf(SESSIO_CADUCADA));
+                        respostaArrayMap.set(0, respostaMap);
+                    }
+                    resposta = respostaArrayMap;
+                    break;
+                    
+                case "llista_prestecs_usuari":
+                    if (posicioUsuari != -1){
+                        String codi_sessio = dades.get("codi");
+                        String userName = controladorUsuaris.nomUsuari(taula_usuaris_connectats, totalUsuaris, codi_sessio);
+                        respostaArrayMap = controladorSQL.llistaPrestecsUsuari(stmt, dades, userName);
+                    }else{
+                        respostaMap.put("codi_retorn", String.valueOf(SESSIO_CADUCADA));
+                        respostaArrayMap.set(0, respostaMap);
+                    }
+                    resposta = respostaArrayMap;
+                    break;
+                
             }
 
         }catch (SQLException ex) {
