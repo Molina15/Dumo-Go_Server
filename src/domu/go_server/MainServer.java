@@ -30,7 +30,7 @@ public class MainServer {
         try {
             // Creant socket servidor     
             serverSocket = new ServerSocket(port, maxConnexions);
-           
+            
             //Bucle infinit esperant connexions
             int i=0;
             while (true) {

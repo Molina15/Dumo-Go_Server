@@ -365,6 +365,29 @@ public class AccionsServidor {
                     }
                     resposta = respostaArrayMap;
                     break;
+                    
+                case "llista_prestecs_no_retornats":
+                    if (posicioAdmin != -1){
+                        String codi_sessio = dades.get("codi");
+                        respostaArrayMap = controladorSQL.llistaPrestecsNoRetornats(stmt, dades);
+                    }else{
+                        respostaMap.put("codi_retorn", String.valueOf(SESSIO_CADUCADA));
+                        respostaArrayMap.set(0, respostaMap);
+                    }
+                    resposta = respostaArrayMap;
+                    break;
+                    
+                case "llista_llegits":
+                    if (posicioUsuari != -1){
+                        String codi_sessio = dades.get("codi");
+                        String userName = controladorUsuaris.nomUsuari(taula_usuaris_connectats, totalUsuaris, codi_sessio);
+                        respostaArrayMap = controladorSQL.llistaLlegitsUsuari(stmt, dades, userName);
+                    }else{
+                        respostaMap.put("codi_retorn", String.valueOf(SESSIO_CADUCADA));
+                        respostaArrayMap.set(0, respostaMap);
+                    }
+                    resposta = respostaArrayMap;
+                    break;
                 
             }
 

@@ -99,55 +99,9 @@ public class controladorSQL {
     
     private static int LLISTA_PRESTECS_USUARI_OK = 2400;
     
+     private static int LLISTA_LLEGITS_OK = 2500;
     
-    /**
-    Clase que permite validar un DNI.  
-    Se crea un objeto del tipo ValidadorDNI y se le pasa un String a validar.
-    @return true si DNI es correcto.
-    Desarrollado por Manuel Mato.
-    */
-    
-    public static boolean comprobaPassword(String password){
-        return (password.length() >= 4);
-    }
-    
-    public static boolean comprobaFormatDNI(String dni) {
-        
-        boolean resposta;
 
-        String letraMayuscula = ""; //Guardaremos la letra introducida en formato mayúscula
-
-        // Aquí excluimos cadenas distintas a 9 caracteres que debe tener un dni/NIE y también si el último caracter no es una letra
-        if(dni.length() != 9 || Character.isLetter(dni.charAt(8)) == false ) {
-            resposta = false;
-        }else{
-            //comprobem si és un NIE
-            if (Character.isLetter(dni.charAt(0))){
-                //revisem la part on hi hauria d'haver numeros
-                String PartNumerica = dni.substring(1,7);
-                boolean isNumeric = PartNumerica.chars().allMatch( Character::isDigit );
-                //Si a la part numerica tot son numeros és un NIE
-                if (isNumeric){
-                    resposta = true;
-                }else{
-                    resposta = false;
-                }
-            }else{
-                //sino te una lletra al principi, el considerem un possible DNI
-                String PartNumerica = dni.substring(0,7);
-                boolean isNumeric = PartNumerica.chars().allMatch( Character::isDigit );
-                //Si a la part numerica tot son numeros és un NIE
-                if (isNumeric){
-                    resposta = true;
-                }else{
-                    resposta = false;
-                }
-            }
-        }
-        return resposta;
-       
-    }
-    
     public static int comprobarUsuari(Statement stmt, HashMap<String, String> dades) throws SQLException{
         int resposta;
         String nom_user = dades.get("user_name");
@@ -241,11 +195,11 @@ public class controladorSQL {
         comprobador = comprobarUsuari(stmt, dades);
         
         if (comprobador == USUARI_NO_EXISTEIX){
-            if (comprobaPassword(password)){
-                if(comprobaFormatDNI(dni)){
-                    if(trobaDNI(stmt, dni, taula) == false){
-                        if(comprobaFormatEmail(correu)){
-                            if(trobaCorreu(stmt, correu, taula) == false){
+            if (funcionsAux.comprobaPassword(password)){
+                if(funcionsAux.comprobaFormatDNI(dni)){
+                    if(funcionsAux.trobaDNI(stmt, dni, taula) == false){
+                        if(funcionsAux.comprobaFormatEmail(correu)){
+                            if(funcionsAux.trobaCorreu(stmt, correu, taula) == false){
                                 try{
                                     stmt.executeUpdate(sentencia);
                                     resposta = USUARI_AFEGIT;
@@ -299,11 +253,11 @@ public class controladorSQL {
         comprobador = comprobarAdmin(stmt, dades);
         
         if (comprobador == ADMIN_NO_EXISTEIX){
-            if (comprobaPassword(password)){
-                if(comprobaFormatDNI(dni)){
-                    if(trobaDNI(stmt, dni, taula) == false){
-                        if(comprobaFormatEmail(correu)){
-                            if(trobaCorreu(stmt, correu, taula) == false){
+            if (funcionsAux.comprobaPassword(password)){
+                if(funcionsAux.comprobaFormatDNI(dni)){
+                    if(funcionsAux.trobaDNI(stmt, dni, taula) == false){
+                        if(funcionsAux.comprobaFormatEmail(correu)){
+                            if(funcionsAux.trobaCorreu(stmt, correu, taula) == false){
                                 try{
                                     stmt.executeUpdate(sentencia);
                                     resposta = ADMIN_AFEGIT;
@@ -371,57 +325,6 @@ public class controladorSQL {
         return resposta;
         
     }
-    
-    private static boolean trobaDNI(Statement stmt, String dni, String taula) throws SQLException{
-        boolean resposta = false;
-        String sentencia = "SELECT dni FROM "+taula+" WHERE dni = '"+dni+"';";
-        System.out.println(sentencia.toString());
-        stmt.executeQuery(sentencia);
-        try{
-            ResultSet rs = stmt.executeQuery(sentencia);
-            if (rs.next()){
-                resposta = true;
-            }else{
-                resposta = false;
-            }
-        }catch(SQLException ex){
-            System.out.println(ex);
-        }
-        return resposta;
-    }
-    
-    private static boolean comprobaFormatEmail(String correu){
-        // Patrón para validar el email
-        Pattern pattern = Pattern
-                .compile("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
-                        + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
- 
-        Matcher mather = pattern.matcher(correu);
- 
-        if (mather.find() == true){
-            return true;
-        } else {
-            return false;
-        }
-    }
-    
-     private static boolean trobaCorreu(Statement stmt, String correu, String taula) throws SQLException{
-         boolean resposta = false;
-        String sentencia = "SELECT correu FROM "+taula+" WHERE correu = '"+correu+"';";
-        System.out.println(sentencia.toString());
-        try{
-            ResultSet rs = stmt.executeQuery(sentencia);
-            if (rs.next()){
-                System.out.println("Correu: " + rs.next());
-                resposta = true;
-            }else{
-                resposta = false;
-            }
-        }catch(SQLException ex){
-            System.out.println(ex);
-        }
-        return resposta;
-     } 
 
     public static int canviaPasswordAdmin(Statement stmt, HashMap<String, String> dades) throws SQLException {
         int comproba = comprobarAdmin(stmt, dades);
@@ -571,79 +474,20 @@ public class controladorSQL {
       public static ArrayList llistaUsuaris(Statement stmt, HashMap<String, String> dades) throws SQLException { 
         String codi_resposta = null;
         String sentencia = "select nom_user from usuaris order by nom_user;";
-        System.out.println(sentencia.toString());
-        ArrayList respostaArrayMap = new ArrayList();
-        String nom_user;
-        HashMap<String, String> aux_user_map = new HashMap<String, String>();
-        try{
-            ResultSet rs = stmt.executeQuery(sentencia);
-            ArrayList llistaNoms = new ArrayList();
-            while(rs.next()){
-                llistaNoms.add(rs.getString("nom_user"));
-            }
-            int i = 0;
-            while (i < llistaNoms.size()){
-                nom_user = (String) llistaNoms.get(i);
-                System.out.println("nom: "+nom_user);
-                aux_user_map.put("user_name", nom_user);
-                respostaArrayMap.add(mostraUsuari(stmt, aux_user_map));
-                i++;
-            }
-            codi_resposta = Integer.toString(LLISTA_USUARIS_OK);
-        }catch(SQLException ex){
-            System.out.println("Error: "+ ex);
-            codi_resposta = Integer.toString(ERROR_EN_EL_SERVIDOR);
-        }
-        aux_user_map = (HashMap) respostaArrayMap.get(0);
-        aux_user_map.put("codi_retorn", codi_resposta);
-        respostaArrayMap.set(0, aux_user_map);
-        int j = 0;
-        System.out.println("\n Llista d'usuaris per enviar:");
-        while(j < respostaArrayMap.size()){
-            System.out.println(respostaArrayMap.get(j));
-            j++;
-        }
+        System.out.println(sentencia);
+        String missatge= "\n Usuaris per enviar: ";
+        ResultSet rs = stmt.executeQuery(sentencia);
         
-        return respostaArrayMap;
+        return funcionsAux.llistaResultat(rs, missatge, LLISTA_USUARIS_OK);
     }
       
     public static ArrayList llistaAdmins(Statement stmt, HashMap<String, String> dades) throws SQLException { 
-        String codi_resposta = null;
         String sentencia = "select nom_admin from administradors order by nom_admin;";
-        System.out.println(sentencia.toString());
-        ArrayList respostaArrayMap = new ArrayList();
-        String nom_admin;
-        HashMap<String, String> aux_admin_map = new HashMap<String, String>();
-        try{
-            ResultSet rs = stmt.executeQuery(sentencia);
-            ArrayList llistaNoms = new ArrayList();
-            while(rs.next()){
-                llistaNoms.add(rs.getString("nom_admin"));
-            }
-            int i = 0;
-            while (i < llistaNoms.size()){
-                nom_admin = (String) llistaNoms.get(i);
-                System.out.println("nom: "+nom_admin);
-                aux_admin_map.put("nom_admin", nom_admin);
-                respostaArrayMap.add(mostraAdmin(stmt, aux_admin_map));
-                i++;
-            }
-            codi_resposta = Integer.toString(LLISTA_ADMINS_OK);
-        }catch(SQLException ex){
-            System.out.println("Error: "+ ex);
-            codi_resposta = Integer.toString(ERROR_EN_EL_SERVIDOR);
-        }
-        aux_admin_map = (HashMap) respostaArrayMap.get(0);
-        aux_admin_map.put("codi_retorn", codi_resposta);
-        respostaArrayMap.set(0, aux_admin_map);
-        int j = 0;
-        System.out.println("\n Llista d'admins per enviar:");
-        while(j < respostaArrayMap.size()){
-            System.out.println(respostaArrayMap.get(j));
-            j++;
-        }
+        System.out.println(sentencia);
+        String missatge= "\n Administradors per enviar: ";
+        ResultSet rs = stmt.executeQuery(sentencia);
         
-        return respostaArrayMap;
+        return funcionsAux.llistaResultat(rs, missatge, LLISTA_ADMINS_OK);
     }
         
     
@@ -684,9 +528,9 @@ public class controladorSQL {
         String telefon = dades.get("telefon");
         String data_naixement = dades.get("data_naixement");
 
-        if (comprobaPassword(password)){
-            if(comprobaFormatDNI(dni)){
-                if(comprobaFormatEmail(correu)){
+        if (funcionsAux.comprobaPassword(password)){
+            if(funcionsAux.comprobaFormatDNI(dni)){
+                if(funcionsAux.comprobaFormatEmail(correu)){
                     resposta = MODIFICACIO_OK;
                 }else{
                     resposta = FORMAT_EMAIL;
@@ -773,33 +617,12 @@ public class controladorSQL {
     }
     
     public static ArrayList llistaLlibres(Statement stmt, HashMap<String, String> dades) throws SQLException { 
-        String codi_resposta = null;
         String sentencia = "select * from llibres order by nom;";
-        System.out.println(sentencia.toString());
-        ArrayList respostaArrayMap = new ArrayList();
-        HashMap<String, String> aux_user_map = new HashMap<String, String>();
+        System.out.println(sentencia);
+        String missatge= "\n Llibres per enviar: ";
         ResultSet rs = stmt.executeQuery(sentencia);
-        ResultSetMetaData md = rs.getMetaData();
-        int columns = md.getColumnCount();
-        while(rs.next()){
-            aux_user_map = new HashMap<String, String>();
-            for( int i=1; i<=columns; ++i){
-                aux_user_map.put(md.getColumnName(i), rs.getString(i));
-            } 
-            respostaArrayMap.add(aux_user_map);
-        }   
-        codi_resposta = Integer.toString(LLISTA_LLIBRES_OK);
-        aux_user_map = (HashMap) respostaArrayMap.get(0);
-        aux_user_map.put("codi_retorn", codi_resposta);
-        respostaArrayMap.set(0, aux_user_map);
-        int j = 0;
-        System.out.println("\n Llista de llibres per enviar:");
-        while(j < respostaArrayMap.size()){
-            System.out.println(respostaArrayMap.get(j));
-            j++;
-        }
         
-        return respostaArrayMap;
+        return funcionsAux.llistaResultat(rs, missatge, LLISTA_LLIBRES_OK);
     }
     
     public static int modificaLlibre(Statement stmt, HashMap<String, String> dades) throws SQLException { 
@@ -838,11 +661,8 @@ public class controladorSQL {
         }
         System.out.println("Valoracio = "+valoracio+" Vots= "+vots);
         int suma_valoracio = valoracio*vots;
-        System.out.println("HOLA");
         int vots_actualitzats = vots + 1;
-        System.out.println("HOLA");
         int valoracio_actualitzada = (suma_valoracio + valoracio_usuari)/vots_actualitzats;
-        System.out.println("HOLA");
         sentencia = "Update llibres set (valoracio, vots) = ("+valoracio_actualitzada+", "+vots_actualitzats+") where id = '"+id_llibre+"';";
         stmt.executeUpdate(sentencia);
         return VALORACIO_OK;
@@ -858,7 +678,7 @@ public class controladorSQL {
             DNI = rs.getString(1);
         }
         if (DNI != null){
-            sentencia = "Update llibres set reservat_dni = '"+DNI+"' where id = "+id_llibre+" and reservat_dni = 'LLIURE';";
+            sentencia = "Update llibres set user_name = '"+userName+"' where id = "+id_llibre+" and user_name = 'LLIURE';";
             System.out.println(sentencia.toString());
             int milisecondsByDay = 86400000;
             int resultat;
@@ -887,7 +707,7 @@ public class controladorSQL {
         String sentencia = "Update prestecs set data_retorn_real = '"+data_actual+"' where id_llibre = "+id_llibre+";";
         int resultat = stmt.executeUpdate(sentencia);
         if (0 < resultat){
-            sentencia = "Update llibres set reservat_dni = 'LLIURE' where id = "+id_llibre+";";
+            sentencia = "Update llibres set user_name = 'LLIURE' where id = "+id_llibre+";";
             resultat = stmt.executeUpdate(sentencia);
              if (0 < resultat){
                     return RETORN_OK;
@@ -899,68 +719,46 @@ public class controladorSQL {
     }
     
     public static ArrayList llistaPrestecs(Statement stmt, HashMap<String, String> dades) throws SQLException{
-        String sentencia = "select U.nom_user, U.id as \"id_usuari\", P.*  from prestecs P, llibres L, usuaris U where P.id_llibre = L.id and "
-                + "U.dni = L.reservat_dni order by data_retorn_teoric ASC;";
-        System.out.println(sentencia.toString());
-        ArrayList respostaArrayMap = new ArrayList();
-        HashMap<String, String> aux_user_map = new HashMap<String, String>();
-        ResultSet rs = stmt.executeQuery(sentencia);
-        ResultSetMetaData md = rs.getMetaData();
-        int columns = md.getColumnCount();
-        while(rs.next()){
-            aux_user_map = new HashMap<String, String>();
-            for( int i=1; i<=columns; ++i){
-                aux_user_map.put(md.getColumnName(i), rs.getString(i));
-            } 
-            respostaArrayMap.add(aux_user_map);
-        }   
-        String codi_resposta = Integer.toString(LLISTA_PRESTECS_OK); //llista ok
-        aux_user_map = (HashMap) respostaArrayMap.get(0);
-        aux_user_map.put("codi_retorn", codi_resposta);
-        respostaArrayMap.set(0, aux_user_map);
-        int j = 0;
-        System.out.println("\n Llista prestecs per enviar:");
-        while(j < respostaArrayMap.size()){
-            System.out.println(respostaArrayMap.get(j));
-            j++;
-        }
+        String sentencia = "select L.nom as \"nom_llibre\", P.* from prestecs P, llibres L where P.id_llibre = L.id order by data_retorn_teoric ASC;";
         
-        return respostaArrayMap;
+        System.out.println(sentencia);
+        String missatge= "\n Prestecs per enviar: ";
+        ResultSet rs = stmt.executeQuery(sentencia);
+        
+        return funcionsAux.llistaResultat(rs, missatge, LLISTA_PRESTECS_OK);
+    }
+    
+    public static ArrayList llistaPrestecsNoRetornats(Statement stmt, HashMap<String, String> dades) throws SQLException{
+        String sentencia = "select L.nom as \"nom_llibre\", P.* from prestecs P, llibres L where P.id_llibre = L.id and P.data_retorn_real is null order by data_retorn_teoric ASC;";
+        
+        System.out.println(sentencia);
+        String missatge= "\n Prestecs per enviar: ";
+        ResultSet rs = stmt.executeQuery(sentencia);
+        
+        return funcionsAux.llistaResultat(rs, missatge, LLISTA_PRESTECS_OK);
     }
     
     public static ArrayList llistaPrestecsUsuari(Statement stmt, HashMap<String, String> dades, String userName) throws SQLException{
-        String sentencia = "select U.nom_user, U.id as \"id_usuari\", P.*  from prestecs P, llibres L, usuaris U where P.id_llibre = L.id and "
-                + "U.dni = L.reservat_dni and U.nom_user = '"+ userName +"' order by data_retorn_teoric ASC;";
-        System.out.println(sentencia.toString());
-        ArrayList respostaArrayMap = new ArrayList();
-        HashMap<String, String> aux_user_map = new HashMap<String, String>();
-        ResultSet rs = stmt.executeQuery(sentencia);
-        ResultSetMetaData md = rs.getMetaData();
-        int columns = md.getColumnCount();
-        while(rs.next()){
-            aux_user_map = new HashMap<String, String>();
-            for( int i=1; i<=columns; ++i){
-                aux_user_map.put(md.getColumnName(i), rs.getString(i));
-            } 
-            respostaArrayMap.add(aux_user_map);
-        }   
-        String codi_resposta = Integer.toString(LLISTA_PRESTECS_USUARI_OK); //llista ok
-        aux_user_map = (HashMap) respostaArrayMap.get(0);
-        aux_user_map.put("codi_retorn", codi_resposta);
-        respostaArrayMap.set(0, aux_user_map);
-        int j = 0;
-        System.out.println("\n Llista prestecs per enviar:");
-        while(j < respostaArrayMap.size()){
-            System.out.println(respostaArrayMap.get(j));
-            j++;
-        }
+        String sentencia = "select L.nom as \"nom_llibre\", P.* from prestecs P, llibres L where P.id_llibre = L.id and P.data_retorn_real "
+                + "is null and P.user_name = '"+userName+"' order by data_retorn_teoric ASC;";
         
-        return respostaArrayMap;
+        System.out.println(sentencia);
+        String missatge= "\n Prestecs usuari per enviar: ";
+        ResultSet rs = stmt.executeQuery(sentencia);
+        
+        return funcionsAux.llistaResultat(rs, missatge, LLISTA_PRESTECS_USUARI_OK);
     }
     
+     public static ArrayList llistaLlegitsUsuari(Statement stmt, HashMap<String, String> dades, String userName) throws SQLException{
+        String sentencia = "select L.nom as \"nom_llibre\", P.* from prestecs P, llibres L where P.id_llibre = L.id and "
+                + "P.user_name = '"+userName+"' and data_retorn_real is not null order by data_retorn_teoric ASC;";
+        
+        System.out.println(sentencia);
+        String missatge= "\n Llegits per enviar: ";
+        ResultSet rs = stmt.executeQuery(sentencia);
+        
+        return funcionsAux.llistaResultat(rs, missatge, LLISTA_LLEGITS_OK);
+    }
     
-    
-    
-
 
 }
