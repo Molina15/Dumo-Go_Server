@@ -5,10 +5,14 @@
  */
 package domu.go_server;
 
+import com.jcraft.jsch.JSchException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -28,9 +32,15 @@ public class MainServer {
         ServerSocket serverSocket = null;
         
         try {
+                AccionsServidor.obrir();
+                AccionsServidor.executaComprovador();
+        } catch (SQLException | JSchException ex) {
+            Logger.getLogger(ThreadClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        try {
             // Creant socket servidor     
             serverSocket = new ServerSocket(port, maxConnexions);
-            
             //Bucle infinit esperant connexions
             int i=0;
             while (true) {

@@ -91,6 +91,7 @@ public class MainClient_proves {
             HashMap<String, String> llista_prestecs_usuari = new HashMap<String, String>();
             HashMap<String, String> llista_prestecs_no_retornats = new HashMap<String, String>();
             HashMap<String, String> llista_llegits = new HashMap<String, String>();
+            HashMap<String, String> llista_prestecs_urgents = new HashMap<String, String>();
             
             while(online){
                 
@@ -133,8 +134,8 @@ public class MainClient_proves {
                     
                 }else if ("3".equals(entrada)){
                     comprobar_usuari.put("accio", "comprobar_usuari");
-                    comprobar_usuari.put("user_name","Pep25");
-                    comprobar_usuari.put("password", "12345");
+                    comprobar_usuari.put("user_name","Joan25");
+                    comprobar_usuari.put("password", "canviat");
                     mapOutputStream.writeObject(comprobar_usuari);
                     System.out.println("Esperant confirmacio...");
                     resposta = (int) mapInputStream.readObject();
@@ -511,6 +512,24 @@ public class MainClient_proves {
                     llista_llegits.put("codi", codi);
                     llista_llegits.put("accio", "llista_llegits");
                     mapOutputStream.writeObject(llista_llegits);
+                    System.out.println("Esperant confirmacio...");
+                    //enviem la consulta al servidor
+                    Object respostaObj = mapInputStream.readObject();
+                    respostaArrayMap = (ArrayList) respostaObj;
+                    int j = 0;
+                    while(j < respostaArrayMap.size()){
+                        System.out.println(respostaArrayMap.get(j));
+                        j++;
+                    }
+                    respostaMap = (HashMap) respostaArrayMap.get(0);
+                    resposta = Integer.valueOf(respostaMap.get("codi_retorn"));
+                    
+                }
+                
+                else if("27".equals(entrada)){
+                    llista_prestecs_urgents.put("codi", codi);
+                    llista_prestecs_urgents.put("accio", "llista_prestecs_urgents");
+                    mapOutputStream.writeObject(llista_prestecs_urgents);
                     System.out.println("Esperant confirmacio...");
                     //enviem la consulta al servidor
                     Object respostaObj = mapInputStream.readObject();

@@ -75,12 +75,7 @@ public class ThreadClient extends Thread {
         Boolean esUnNumero = false;
         Boolean esUnMap = false;
 
-        try {
-                AccionsServidor.obrir();
-                //AccionsServidor.obrir();   
-        } catch (SQLException | JSchException ex) {
-            Logger.getLogger(ThreadClient.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        
         
         while(online){
             try{

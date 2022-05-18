@@ -23,6 +23,9 @@ import java.util.stream.IntStream;
 import java.util.Arrays;  
 import domu.go_server.controladorUsuaris;
 import java.sql.Array;
+import java.text.ParseException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -46,6 +49,8 @@ public class AccionsServidor {
     private static final int CODI_INICI = 10000;
     private static final int CODI_FINAL = 10100;
     
+    private static Statement stmt;
+    
     
     
     public static void obrir() throws SQLException, JSchException{
@@ -62,18 +67,27 @@ public class AccionsServidor {
         connexio.setAutoCommit(true);
         boolean valid = connexio.isValid(50000);
         System.out.println(valid ? "CONNEXIO OK" : "CONNEXIO FAIL");
+        
+        stmt = connexio.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+                                  ResultSet.CONCUR_UPDATABLE);
     }
-    
+     /**
     public static void tancar() throws SQLException{
         if (connexio != null){
             connexio.close();
         }
+    }**/
+    
+    public static void executaComprovador() throws SQLException, ParseException, InterruptedException{
+        ArrayList prestecs = controladorSQL.llistaPrestecsNoRetornats(stmt);
+        
+        threadComprovador comprovador = new threadComprovador(stmt, prestecs);
+        comprovador.start();
     }
    
     public static Object realitza_accio(HashMap<String, String> dades) throws SQLException{
         String sentencia = null;
-        Statement stmt = connexio.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
-                                  ResultSet.CONCUR_UPDATABLE); //Usamos create... no prepare...
+         //Usamos create... no prepare...
         Object resposta = null;
         HashMap<String, String> respostaMap = new HashMap<String, String>();
         ArrayList respostaArrayMap = new ArrayList();
@@ -369,7 +383,7 @@ public class AccionsServidor {
                 case "llista_prestecs_no_retornats":
                     if (posicioAdmin != -1){
                         String codi_sessio = dades.get("codi");
-                        respostaArrayMap = controladorSQL.llistaPrestecsNoRetornats(stmt, dades);
+                        respostaArrayMap = controladorSQL.llistaPrestecsNoRetornats(stmt);
                     }else{
                         respostaMap.put("codi_retorn", String.valueOf(SESSIO_CADUCADA));
                         respostaArrayMap.set(0, respostaMap);
@@ -382,6 +396,18 @@ public class AccionsServidor {
                         String codi_sessio = dades.get("codi");
                         String userName = controladorUsuaris.nomUsuari(taula_usuaris_connectats, totalUsuaris, codi_sessio);
                         respostaArrayMap = controladorSQL.llistaLlegitsUsuari(stmt, dades, userName);
+                    }else{
+                        respostaMap.put("codi_retorn", String.valueOf(SESSIO_CADUCADA));
+                        respostaArrayMap.set(0, respostaMap);
+                    }
+                    resposta = respostaArrayMap;
+                    break;
+                    
+                 case "llista_prestecs_urgents":
+                    if (posicioUsuari != -1){
+                        String codi_sessio = dades.get("codi");
+                        String userName = controladorUsuaris.nomUsuari(taula_usuaris_connectats, totalUsuaris, codi_sessio);
+                        respostaArrayMap = controladorSQL.llistaPrestecsUrgents(stmt, dades, userName);
                     }else{
                         respostaMap.put("codi_retorn", String.valueOf(SESSIO_CADUCADA));
                         respostaArrayMap.set(0, respostaMap);

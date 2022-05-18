@@ -99,7 +99,9 @@ public class controladorSQL {
     
     private static int LLISTA_PRESTECS_USUARI_OK = 2400;
     
-     private static int LLISTA_LLEGITS_OK = 2500;
+    private static int LLISTA_LLEGITS_OK = 2500;
+     
+    private static int LLISTA_PRESTECS_URGENTS_OK = 2600;
     
 
     public static int comprobarUsuari(Statement stmt, HashMap<String, String> dades) throws SQLException{
@@ -710,6 +712,8 @@ public class controladorSQL {
             sentencia = "Update llibres set user_name = 'LLIURE' where id = "+id_llibre+";";
             resultat = stmt.executeUpdate(sentencia);
              if (0 < resultat){
+                    sentencia = "update prestecs set avis_programat = false where id_llibre = "+id_llibre+";";
+                    resultat = stmt.executeUpdate(sentencia);
                     return RETORN_OK;
                 }
         }else{
@@ -728,7 +732,7 @@ public class controladorSQL {
         return funcionsAux.llistaResultat(rs, missatge, LLISTA_PRESTECS_OK);
     }
     
-    public static ArrayList llistaPrestecsNoRetornats(Statement stmt, HashMap<String, String> dades) throws SQLException{
+    public static ArrayList llistaPrestecsNoRetornats(Statement stmt) throws SQLException{
         String sentencia = "select L.nom as \"nom_llibre\", P.* from prestecs P, llibres L where P.id_llibre = L.id and P.data_retorn_real is null order by data_retorn_teoric ASC;";
         
         System.out.println(sentencia);
@@ -758,6 +762,23 @@ public class controladorSQL {
         ResultSet rs = stmt.executeQuery(sentencia);
         
         return funcionsAux.llistaResultat(rs, missatge, LLISTA_LLEGITS_OK);
+    }
+     
+    public static void marcaPrestec(Statement stmt, String id_llibre) throws SQLException{
+        String sentencia = "Update prestecs set avis_programat = 'true' where id_llibre = "+id_llibre+";";
+        stmt.executeUpdate(sentencia);
+    }
+    
+    public static ArrayList llistaPrestecsUrgents(Statement stmt, HashMap<String, String> dades, String userName) throws SQLException{
+        
+        String sentencia = "Select * from prestecs where user_name = '"+userName+"' and avis_programat = true;";
+        
+        System.out.println(sentencia);
+        String missatge= "\n Prestecs usuari per enviar: ";
+        ResultSet rs = stmt.executeQuery(sentencia);
+        
+        return funcionsAux.llistaResultat(rs, missatge, LLISTA_PRESTECS_URGENTS_OK);
+        
     }
     
 
