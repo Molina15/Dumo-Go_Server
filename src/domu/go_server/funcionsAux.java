@@ -22,24 +22,30 @@ public class funcionsAux {
     
     public static ArrayList llistaResultat(ResultSet rs, String missatge, int codi_resposta_ok) throws SQLException{
         ArrayList respostaArrayMap = new ArrayList();
-        HashMap<String, String> aux_user_map = new HashMap<String, String>();
+        HashMap<String, String> aux_user_map = null;
         ResultSetMetaData md = rs.getMetaData();
+        String codi_resposta = Integer.toString(codi_resposta_ok);
         int columns = md.getColumnCount();
         int i = 1;
+        int d = 0;
         while(rs.next()){
+            aux_user_map = new HashMap<String, String>();
             for(i=1; i<=columns; ++i){
                 aux_user_map.put(md.getColumnName(i), rs.getString(i));
             } 
             respostaArrayMap.add(aux_user_map);
+            d++;
         }
-        String codi_resposta = Integer.toString(codi_resposta_ok);
-        if(i==1){
+        
+        if(respostaArrayMap.size() == 0){
             respostaArrayMap.add(aux_user_map);
         }
+
         aux_user_map = (HashMap) respostaArrayMap.get(0);
         aux_user_map.put("codi_retorn", codi_resposta);
-        respostaArrayMap.set(0, aux_user_map);
+        respostaArrayMap.set(0, aux_user_map); 
         int j = 0;
+        
         System.out.println(missatge);
         while(j < respostaArrayMap.size()){
             System.out.println(respostaArrayMap.get(j));

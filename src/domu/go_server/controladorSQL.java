@@ -726,7 +726,7 @@ public class controladorSQL {
         String sentencia = "select L.nom as \"nom_llibre\", P.* from prestecs P, llibres L where P.id_llibre = L.id order by data_retorn_teoric ASC;";
         
         System.out.println(sentencia);
-        String missatge= "\n Prestecs per enviar: ";
+        String missatge= "\nPrestecs per enviar: ";
         ResultSet rs = stmt.executeQuery(sentencia);
         
         return funcionsAux.llistaResultat(rs, missatge, LLISTA_PRESTECS_OK);
@@ -736,7 +736,7 @@ public class controladorSQL {
         String sentencia = "select L.nom as \"nom_llibre\", P.* from prestecs P, llibres L where P.id_llibre = L.id and P.data_retorn_real is null order by data_retorn_teoric ASC;";
         
         System.out.println(sentencia);
-        String missatge= "\n Prestecs per enviar: ";
+        String missatge= "\nPrestecs per enviar: ";
         ResultSet rs = stmt.executeQuery(sentencia);
         
         return funcionsAux.llistaResultat(rs, missatge, LLISTA_PRESTECS_OK);
