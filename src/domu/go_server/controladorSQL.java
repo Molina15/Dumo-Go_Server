@@ -115,14 +115,15 @@ public class controladorSQL {
         int resposta;
         String nom_user = dades.get("user_name");
         String password = dades.get("password");
+        String MD5password = funcionsAux.getMD5(password);
         String sentencia = "SELECT nom_user, password FROM usuaris WHERE nom_user = '"+nom_user+"';";
-        //System.out.println(sentencia.toString());
+        System.out.println(sentencia.toString());
         stmt.executeQuery(sentencia);
         try{
             ResultSet rs = stmt.executeQuery(sentencia);
             if (rs.next()){
-                //System.out.println(password+", "+resultat.getString(2));
-                if (rs.getString(2).equals(password)){
+                System.out.println(rs.getString(2)+" "+MD5password);
+                if (rs.getString(2).equals(MD5password)){
                     //si l'usuari existeix i la contrasenya és correcta
                     resposta = USUARI_OK;
 
@@ -148,14 +149,15 @@ public class controladorSQL {
         int resposta;
         String nom_admin = dades.get("nom_admin");
         String password = dades.get("password");
+        String MD5password = funcionsAux.getMD5(password);
         String sentencia = "SELECT nom_admin, password FROM administradors WHERE nom_admin = '"+nom_admin+"';";
         System.out.println(sentencia.toString());
         stmt.executeQuery(sentencia);
         try{
             ResultSet rs = stmt.executeQuery(sentencia);
             if (rs.next()){
-                System.out.println(password+", "+rs.getString(2));
-                if (rs.getString(2).equals(password)){
+                System.out.println(rs.getString(2)+" "+MD5password);
+                if (rs.getString("password").equals(MD5password)){
                     //si l'usuari existeix i la contrasenya es correcta
                     resposta = ADMIN_OK;
 
@@ -198,7 +200,7 @@ public class controladorSQL {
         String data_naixement = dades.get("data_naixement");
         
         String sentencia = "INSERT INTO public.usuaris(nom_user, password, dni, data_alta, correu, admin_alta, nom, cognoms, direccio, pais, telefon, data_naixement)"
-                + " VALUES ('"+nom_user+"','"+password+"','"+dni+"','"+data_alta+"','"+correu+"','"+admin_alta+"','"+nom+"',"
+                + " VALUES ('"+nom_user+"',MD5('"+password+"'),'"+dni+"','"+data_alta+"','"+correu+"','"+admin_alta+"','"+nom+"',"
                 + "'"+cognoms+"','"+direccio+"','"+pais+"','"+telefon+"','"+data_naixement+"');";
         
         comprobador = comprobarUsuari(stmt, dades);
@@ -256,7 +258,7 @@ public class controladorSQL {
         String data_naixement = dades.get("data_naixement");
         
         String sentencia = "INSERT INTO "+ taula + "(nom_admin, password, nom, dni, correu, admin_alta, cognoms, direccio, pais, telefon, data_naixement)"
-                + " VALUES ('"+nom_admin+"','"+password+"','"+nom+"','"+dni+"','"+correu+"','"+admin_alta+"',"
+                + " VALUES ('"+nom_admin+"',MD5('"+password+"'),'"+nom+"','"+dni+"','"+correu+"','"+admin_alta+"',"
                 + "'"+cognoms+"','"+direccio+"','"+pais+"','"+telefon+"','"+data_naixement+"');";
         
         comprobador = comprobarAdmin(stmt, dades);
@@ -341,7 +343,7 @@ public class controladorSQL {
         if (comproba == ADMIN_OK){
             String novaPassword = dades.get("password_nou");
             String nom_admin = dades.get("nom_admin");
-            String sentencia = "UPDATE administradors SET password = '"+novaPassword+"' WHERE nom_admin = '"+nom_admin+"';";
+            String sentencia = "UPDATE administradors SET password = MD5('"+novaPassword+"') WHERE nom_admin = '"+nom_admin+"';";
             System.out.println(sentencia.toString());
             try{
                 stmt.executeUpdate(sentencia);
@@ -364,7 +366,7 @@ public class controladorSQL {
         if (comproba == USUARI_OK){
             String novaPassword = dades.get("password_nou");
             String nom_usuari = dades.get("user_name");
-            String sentencia = "UPDATE usuaris SET password = '"+novaPassword+"' WHERE nom_user = '"+nom_usuari+"';";
+            String sentencia = "UPDATE usuaris SET password = MD5('"+novaPassword+"') WHERE nom_user = '"+nom_usuari+"';";
             System.out.println(sentencia.toString());
             try{
                 stmt.executeUpdate(sentencia);
@@ -537,19 +539,16 @@ public class controladorSQL {
         String telefon = dades.get("telefon");
         String data_naixement = dades.get("data_naixement");
 
-        if (funcionsAux.comprobaPassword(password)){
-            if(funcionsAux.comprobaFormatDNI(dni)){
-                if(funcionsAux.comprobaFormatEmail(correu)){
-                    resposta = MODIFICACIO_OK;
-                }else{
-                    resposta = FORMAT_EMAIL;
-                }
+        if(funcionsAux.comprobaFormatDNI(dni)){
+            if(funcionsAux.comprobaFormatEmail(correu)){
+                resposta = MODIFICACIO_OK;
             }else{
-                resposta = FORMAT_DNI;
+                resposta = FORMAT_EMAIL;
             }
         }else{
-            resposta = FORMAT_PASSWORD;
+            resposta = FORMAT_DNI;
         }
+
         if (resposta == MODIFICACIO_OK){
             String sentencia;
             if (taula == "usuaris"){

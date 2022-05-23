@@ -138,7 +138,7 @@ public class MainClient_proves {
                 }else if ("3".equals(entrada)){
                     comprobar_usuari.put("accio", "comprobar_usuari");
                     comprobar_usuari.put("user_name","Pep25");
-                    comprobar_usuari.put("password", "12345");
+                    comprobar_usuari.put("password", "1234");
                     mapOutputStream.writeObject(comprobar_usuari);
                     System.out.println("Esperant confirmacio...");
                     resposta = (int) mapInputStream.readObject();
@@ -148,7 +148,7 @@ public class MainClient_proves {
                 }else if ("4".equals(entrada)){
                     comprobar_admin.put("accio", "comprobar_admin");
                     comprobar_admin.put("nom_admin","marçal99");
-                    comprobar_admin.put("password", "1234");
+                    comprobar_admin.put("password", "12345");
                     mapOutputStream.writeObject(comprobar_admin);
                     System.out.println("Esperant confirmacio...");
                     resposta = (int) mapInputStream.readObject();
@@ -160,13 +160,13 @@ public class MainClient_proves {
                     Date date = new Date(miliseconds);
                     afegir_usuari.put("codi", codi);
                     afegir_usuari.put("accio", "afegir_usuari");
-                    afegir_usuari.put("user_name", "Helena34");
+                    afegir_usuari.put("user_name", "Kilian34");
                     afegir_usuari.put("password", "1234");
-                    afegir_usuari.put("dni", "77733773H");
+                    afegir_usuari.put("dni", "77733790H");
                     afegir_usuari.put("data_alta", date.toString());
-                    afegir_usuari.put("correu", "helena23@gmail.com");
+                    afegir_usuari.put("correu", "kilian23@gmail.com");
                     afegir_usuari.put("admin_alta", "molina15");
-                    afegir_usuari.put("nom", "Helena");
+                    afegir_usuari.put("nom", "kilian");
                     afegir_usuari.put("cognoms", "Ruiz");
                     afegir_usuari.put("direccio", "Av de la pera");
                     afegir_usuari.put("pais", "Honduras");
