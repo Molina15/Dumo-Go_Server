@@ -66,11 +66,16 @@ public class AccionsServidor {
         connexio = DriverManager.getConnection(URL, USER, PSW);
         connexio.setAutoCommit(true);
         boolean valid = connexio.isValid(50000);
-        System.out.println(valid ? "CONNEXIO OK" : "CONNEXIO FAIL");
+        System.out.println(valid ? "CONNEXIO AMB BASE DE DADES OK" : "CONNEXIO AMB BASE DE DADES FAIL");
         
         stmt = connexio.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
                                   ResultSet.CONCUR_UPDATABLE);
+        
     }
+    
+    
+    
+    
      /**
     public static void tancar() throws SQLException{
         if (connexio != null){
@@ -95,8 +100,15 @@ public class AccionsServidor {
         String strCodi;
         String nom_usuari;
         String nom_admin;
-        int posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
-        int posicioUsuari = controladorUsuaris.trobaCodi(taula_usuaris_connectats, totalUsuaris, dades.get("codi"));
+        int posicioAdmin;
+        int posicioUsuari;
+        if (dades.get("codi")== null){
+            posicioAdmin = -1;
+            posicioUsuari = -1;
+        }else{
+            posicioAdmin = controladorUsuaris.trobaCodi(taula_admin_connectats, totalAdmin, dades.get("codi"));
+            posicioUsuari = controladorUsuaris.trobaCodi(taula_usuaris_connectats, totalUsuaris, dades.get("codi"));
+        }
         System.out.println("Map d'entrada: " + dades);
 
         try{
@@ -414,6 +426,41 @@ public class AccionsServidor {
                     }
                     resposta = respostaArrayMap;
                     break;
+                    
+                 case "afegeix_comentari":
+                    if (posicioUsuari != -1){
+                        String codi_sessio = dades.get("codi");
+                        String userName = controladorUsuaris.nomUsuari(taula_usuaris_connectats, totalUsuaris, codi_sessio);
+                        dades.put("user_name", userName);
+                        resposta = controladorSQL.afegeixComentari(stmt, dades);
+                    }else{
+                        resposta = SESSIO_CADUCADA;
+                    }
+                    break;
+                    
+                 case "elimina_comentari":
+                    if (posicioAdmin != -1){
+                        resposta = controladorSQL.eliminaComentari(stmt, dades);
+                    }else if (posicioUsuari != -1){
+                        String codi_sessio = dades.get("codi");
+                        String userName = controladorUsuaris.nomUsuari(taula_usuaris_connectats, totalUsuaris, codi_sessio);
+                        dades.put("user_name", userName);
+                        resposta = controladorSQL.eliminaComentariUsuari(stmt, dades);
+                    }else{
+                        resposta = SESSIO_CADUCADA;
+                    }
+                    break;
+                    
+                 case "llista_comentaris":
+                     if (posicioAdmin != -1 || posicioUsuari != -1){
+                        respostaArrayMap = controladorSQL.llistaComentaris(stmt, dades);
+                    }else{
+                        respostaMap.put("codi_retorn", String.valueOf(SESSIO_CADUCADA));
+                        respostaArrayMap.set(0, respostaMap);
+                    }
+                    resposta = respostaArrayMap;
+                    break;
+                    
                 
             }
 

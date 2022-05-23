@@ -92,6 +92,9 @@ public class MainClient_proves {
             HashMap<String, String> llista_prestecs_no_retornats = new HashMap<String, String>();
             HashMap<String, String> llista_llegits = new HashMap<String, String>();
             HashMap<String, String> llista_prestecs_urgents = new HashMap<String, String>();
+            HashMap<String, String> afegeix_comentari = new HashMap<String, String>();
+            HashMap<String, String> elimina_comentari = new HashMap<String, String>();
+            HashMap<String, String> llista_comentaris = new HashMap<String, String>();
             
             while(online){
                 
@@ -134,8 +137,8 @@ public class MainClient_proves {
                     
                 }else if ("3".equals(entrada)){
                     comprobar_usuari.put("accio", "comprobar_usuari");
-                    comprobar_usuari.put("user_name","Joan25");
-                    comprobar_usuari.put("password", "canviat");
+                    comprobar_usuari.put("user_name","Pep25");
+                    comprobar_usuari.put("password", "12345");
                     mapOutputStream.writeObject(comprobar_usuari);
                     System.out.println("Esperant confirmacio...");
                     resposta = (int) mapInputStream.readObject();
@@ -543,6 +546,51 @@ public class MainClient_proves {
                     resposta = Integer.valueOf(respostaMap.get("codi_retorn"));
                     
                 }
+                
+                else if("28".equals(entrada)){
+                    afegeix_comentari.put("codi", codi);
+                    afegeix_comentari.put("accio", "afegeix_comentari");
+                    afegeix_comentari.put("id_llibre", "59");
+                    afegeix_comentari.put("comentari", "Esta bé.");
+                    mapOutputStream.writeObject(afegeix_comentari);
+                    System.out.println("Esperant confirmacio...");
+                    //enviem la consulta al servidor
+                    resposta = (int) mapInputStream.readObject();
+                    System.out.println("Servidor: " + resposta);
+                    
+                }
+                
+                else if("29".equals(entrada)){
+                    elimina_comentari.put("codi", codi);
+                    elimina_comentari.put("accio", "elimina_comentari");
+                    elimina_comentari.put("id_comentari", "1");
+                    mapOutputStream.writeObject(elimina_comentari);
+                    System.out.println("Esperant confirmacio...");
+                    //enviem la consulta al servidor
+                    resposta = (int) mapInputStream.readObject();
+                    System.out.println("Servidor: " + resposta);   
+                }
+                
+                else if("30".equals(entrada)){
+                    llista_comentaris.put("codi", codi);
+                    llista_comentaris.put("accio", "llista_comentaris");
+                    llista_comentaris.put("nom_llibre", "El nom del vent");
+                    
+                    mapOutputStream.writeObject(llista_comentaris);
+                    System.out.println("Esperant confirmacio...");
+                    //enviem la consulta al servidor
+                    Object respostaObj = mapInputStream.readObject();
+                    respostaArrayMap = (ArrayList) respostaObj;
+                    int j = 0;
+                    while(j < respostaArrayMap.size()){
+                        System.out.println(respostaArrayMap.get(j));
+                        j++;
+                    }
+                    respostaMap = (HashMap) respostaArrayMap.get(0);
+                    resposta = Integer.valueOf(respostaMap.get("codi_retorn"));
+                    
+                }
+                
                 
                 
                 else if("90".equals(entrada)){
