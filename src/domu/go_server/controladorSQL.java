@@ -203,9 +203,7 @@ public class controladorSQL {
                 + " VALUES ('"+nom_user+"',MD5('"+password+"'),'"+dni+"','"+data_alta+"','"+correu+"','"+admin_alta+"','"+nom+"',"
                 + "'"+cognoms+"','"+direccio+"','"+pais+"','"+telefon+"','"+data_naixement+"');";
         
-        comprobador = comprobarUsuari(stmt, dades);
-        
-        if (comprobador == USUARI_NO_EXISTEIX){
+        if (trobaUsuari(stmt, nom_user)){
             if (funcionsAux.comprobaPassword(password)){
                 if(funcionsAux.comprobaFormatDNI(dni)){
                     if(funcionsAux.trobaDNI(stmt, dni, taula) == false){
@@ -261,9 +259,7 @@ public class controladorSQL {
                 + " VALUES ('"+nom_admin+"',MD5('"+password+"'),'"+nom+"','"+dni+"','"+correu+"','"+admin_alta+"',"
                 + "'"+cognoms+"','"+direccio+"','"+pais+"','"+telefon+"','"+data_naixement+"');";
         
-        comprobador = comprobarAdmin(stmt, dades);
-        
-        if (comprobador == ADMIN_NO_EXISTEIX){
+        if (trobaAdmin(stmt, nom_admin)){
             if (funcionsAux.comprobaPassword(password)){
                 if(funcionsAux.comprobaFormatDNI(dni)){
                     if(funcionsAux.trobaDNI(stmt, dni, taula) == false){
@@ -354,11 +350,10 @@ public class controladorSQL {
     }
 
     public static int canviaPasswordAdmin(Statement stmt, HashMap<String, String> dades) throws SQLException {
-        int comproba = comprobarAdmin(stmt, dades);
+        String nom_admin = dades.get("nom_admin");
         int resposta;
-        if (comproba == ADMIN_OK){
+        if (trobaAdmin(stmt, nom_admin)){
             String novaPassword = dades.get("password_nou");
-            String nom_admin = dades.get("nom_admin");
             String sentencia = "UPDATE administradors SET password = MD5('"+novaPassword+"') WHERE nom_admin = '"+nom_admin+"';";
             System.out.println(sentencia.toString());
             try{
@@ -377,12 +372,11 @@ public class controladorSQL {
     }
     
     public static int canviaPasswordUsuari(Statement stmt, HashMap<String, String> dades) throws SQLException {
-        int comproba = comprobarUsuari(stmt, dades);
+        String nom_user = dades.get("user_name");
         int resposta;
-        if (comproba == USUARI_OK){
+        if (trobaUsuari(stmt, nom_user)){
             String novaPassword = dades.get("password_nou");
-            String nom_usuari = dades.get("user_name");
-            String sentencia = "UPDATE usuaris SET password = MD5('"+novaPassword+"') WHERE nom_user = '"+nom_usuari+"';";
+            String sentencia = "UPDATE usuaris SET password = MD5('"+novaPassword+"') WHERE nom_user = '"+nom_user+"';";
             System.out.println(sentencia.toString());
             try{
                 stmt.executeUpdate(sentencia);
@@ -500,7 +494,7 @@ public class controladorSQL {
    
       public static ArrayList llistaUsuaris(Statement stmt, HashMap<String, String> dades) throws SQLException { 
         String codi_resposta = null;
-        String sentencia = "select * from usuaris order by nom_user;";
+        String sentencia = "select nom_user as \"user_name\",* from usuaris order by nom_user;";
         System.out.println(sentencia);
         String missatge= "\n Usuaris per enviar: ";
         ResultSet rs = stmt.executeQuery(sentencia);
