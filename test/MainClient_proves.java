@@ -183,7 +183,7 @@ public class MainClient_proves {
                 }else if ("6".equals(entrada)){
                     esborrar_usuari.put("codi", codi);
                     esborrar_usuari.put("accio", "esborrar_usuari");
-                    esborrar_usuari.put("user_name", "Marc45");
+                    esborrar_usuari.put("user_name", "mgv");
                     mapOutputStream.writeObject(esborrar_usuari);
                     System.out.println("Esperant confirmacio...");
                     //rebem la resposta del servidor

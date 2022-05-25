@@ -300,9 +300,8 @@ public class controladorSQL {
     public static int esborraUsuari(Statement stmt, HashMap<String, String> dades) throws SQLException{
         String nom_user = dades.get("user_name");
         int resposta;
-        int comprobador = comprobarUsuari(stmt, dades);
         try{
-            if (comprobador != USUARI_NO_EXISTEIX){
+            if (trobaUsuari(stmt, nom_user)){
                 String sentencia = "DELETE FROM usuaris WHERE nom_user = '"+ nom_user +"';";
                 stmt.executeUpdate(sentencia);
                 resposta = USUARI_ESBORRAT;
@@ -316,13 +315,21 @@ public class controladorSQL {
         return resposta;
     }
     
+    public static Boolean trobaUsuari(Statement stmt, String user_name) throws SQLException{
+        String sentencia = "select * from usuaris where nom_user = '"+user_name+"';";
+        ResultSet rs = stmt.executeQuery(sentencia);
+        if (rs.next()){
+            return true;
+        }else{
+            return false;
+        }
+    }
     
     public static int esborraAdmin(Statement stmt, HashMap<String, String> dades) throws SQLException{
         String nom_admin = dades.get("nom_admin");
         int resposta;
-        int comprobador = comprobarAdmin(stmt, dades);
         try{
-            if (comprobador != ADMIN_NO_EXISTEIX){
+            if (trobaAdmin(stmt, nom_admin)){
                 String sentencia = "DELETE FROM administradors WHERE nom_admin = '"+ nom_admin +"';";
                 stmt.executeUpdate(sentencia);
                 resposta = ADMIN_ESBORRAT;
@@ -334,7 +341,16 @@ public class controladorSQL {
             resposta = ERROR_EN_EL_SERVIDOR;
         }
         return resposta;
-        
+    }
+    
+    public static Boolean trobaAdmin(Statement stmt, String nom_admin) throws SQLException{
+        String sentencia = "select * from administradors where nom_admin = '"+nom_admin+"';";
+        ResultSet rs = stmt.executeQuery(sentencia);
+        if (rs.next()){
+            return true;
+        }else{
+            return false;
+        }   
     }
 
     public static int canviaPasswordAdmin(Statement stmt, HashMap<String, String> dades) throws SQLException {
@@ -484,7 +500,7 @@ public class controladorSQL {
    
       public static ArrayList llistaUsuaris(Statement stmt, HashMap<String, String> dades) throws SQLException { 
         String codi_resposta = null;
-        String sentencia = "select nom_user from usuaris order by nom_user;";
+        String sentencia = "select * from usuaris order by nom_user;";
         System.out.println(sentencia);
         String missatge= "\n Usuaris per enviar: ";
         ResultSet rs = stmt.executeQuery(sentencia);
@@ -493,7 +509,7 @@ public class controladorSQL {
     }
       
     public static ArrayList llistaAdmins(Statement stmt, HashMap<String, String> dades) throws SQLException { 
-        String sentencia = "select nom_admin from administradors order by nom_admin;";
+        String sentencia = "select * from administradors order by nom_admin;";
         System.out.println(sentencia);
         String missatge= "\n Administradors per enviar: ";
         ResultSet rs = stmt.executeQuery(sentencia);
