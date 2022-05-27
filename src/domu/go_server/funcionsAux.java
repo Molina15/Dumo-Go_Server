@@ -25,7 +25,7 @@ public class funcionsAux {
     
     public static ArrayList llistaResultat(ResultSet rs, String missatge, int codi_resposta_ok) throws SQLException{
         ArrayList respostaArrayMap = new ArrayList();
-        HashMap<String, String> aux_user_map = null;
+        HashMap<String, String> aux_user_map = new HashMap<String, String>();
         ResultSetMetaData md = rs.getMetaData();
         String codi_resposta = Integer.toString(codi_resposta_ok);
         int columns = md.getColumnCount();
@@ -75,12 +75,12 @@ public class funcionsAux {
         return resposta;
     } 
     
-    public static boolean comprobaPassword(String password){
+    public static boolean comprovaPassword(String password){
         String null_str = "null";
         return (password.length() >= 4 && !password.equals(null_str));
     }
     
-    public static boolean comprobaFormatDNI(String dni) {
+    public static boolean comprovaFormatDNI(String dni) {
         
         boolean resposta;
 
@@ -135,7 +135,7 @@ public class funcionsAux {
         return resposta;
     }
     
-    public static boolean comprobaFormatEmail(String correu){
+    public static boolean comprovaFormatEmail(String correu){
         // Patrón para validar el email
         Pattern pattern = Pattern
                 .compile("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
@@ -164,6 +164,5 @@ public class funcionsAux {
         }catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
-    }
-    
+    } 
 }

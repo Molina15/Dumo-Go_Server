@@ -25,6 +25,7 @@ public class controladorUsuaris {
         return llistaUsuarisConnectats;
     }
     
+    
     public static int trobaCodi(String[][] llistaUsuarisConnectats, int totalUsuaris, String codiBuscat){
         int posicioUsuari = 0;
         String codi_usuari = "";

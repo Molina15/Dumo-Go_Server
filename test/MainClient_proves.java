@@ -67,8 +67,8 @@ public class MainClient_proves {
             
             HashMap<String, String> afegir_llibre = new HashMap<String, String>();
             HashMap<String, String> esborra_llibre = new HashMap<String, String>();
-            HashMap<String, String> comprobar_usuari = new HashMap<String, String>();
-            HashMap<String, String> comprobar_admin = new HashMap<String, String>();
+            HashMap<String, String> comprovar_usuari = new HashMap<String, String>();
+            HashMap<String, String> comprovar_admin = new HashMap<String, String>();
             HashMap<String, String> afegir_usuari = new HashMap<String, String>();
             HashMap<String, String> esborrar_usuari = new HashMap<String, String>();
             HashMap<String, String> afegir_admin = new HashMap<String, String>();
@@ -136,20 +136,20 @@ public class MainClient_proves {
                     System.out.println("Servidor: " + resposta);
                     
                 }else if ("3".equals(entrada)){
-                    comprobar_usuari.put("accio", "comprobar_usuari");
-                    comprobar_usuari.put("user_name","Pep25");
-                    comprobar_usuari.put("password", "1234");
-                    mapOutputStream.writeObject(comprobar_usuari);
+                    comprovar_usuari.put("accio", "comprovar_usuari");
+                    comprovar_usuari.put("user_name","Kilian34");
+                    comprovar_usuari.put("password", "1234");
+                    mapOutputStream.writeObject(comprovar_usuari);
                     System.out.println("Esperant confirmacio...");
                     resposta = (int) mapInputStream.readObject();
                     codi = String.valueOf(resposta);
                     System.out.println("Servidor (codi de sessió): " + resposta);
                 
                 }else if ("4".equals(entrada)){
-                    comprobar_admin.put("accio", "comprobar_admin");
-                    comprobar_admin.put("nom_admin","marçal99");
-                    comprobar_admin.put("password", "12345");
-                    mapOutputStream.writeObject(comprobar_admin);
+                    comprovar_admin.put("accio", "comprovar_admin");
+                    comprovar_admin.put("nom_admin","marçal99");
+                    comprovar_admin.put("password", "12345");
+                    mapOutputStream.writeObject(comprovar_admin);
                     System.out.println("Esperant confirmacio...");
                     resposta = (int) mapInputStream.readObject();
                     codi = String.valueOf(resposta);

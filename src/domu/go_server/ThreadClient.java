@@ -79,8 +79,7 @@ public class ThreadClient extends Thread {
         
         while(online){
             try{
-                
-                msg = (HashMap) mapInputStream.readObject(); //rep la peticio del client
+                msg = (HashMap) mapInputStream.readObject(); //espera i rep la peticio del client
                 resposta_servidor = AccionsServidor.realitza_accio(msg); //envia la processar la peticio
                 
                 esUnNumero = false;
@@ -138,7 +137,7 @@ public class ThreadClient extends Thread {
             } catch (Exception ex){
                 System.out.println("Client amb numero " + i + " i la IP " + client.getInetAddress().getHostName() + " desconnectat.");
                 online = false;
-                //Si s0ha produit un error es tanca la connexió
+                //Si s'ha produit un error es tanca la connexió
                 try {
                     mapInputStream.close();
                 } catch (Exception ex2) {

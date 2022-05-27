@@ -111,7 +111,7 @@ public class controladorSQL {
     
     private static int LLISTA_COMENTARIS_OK = 2900;
 
-    public static int comprobarUsuari(Statement stmt, HashMap<String, String> dades) throws SQLException{
+    public static int comprovarUsuari(Statement stmt, HashMap<String, String> dades) throws SQLException{
         int resposta;
         String nom_user = dades.get("user_name");
         String password = dades.get("password");
@@ -145,7 +145,7 @@ public class controladorSQL {
         return resposta;
     }
     
-    public static int comprobarAdmin(Statement stmt, HashMap<String, String> dades) throws SQLException{
+    public static int comprovarAdmin(Statement stmt, HashMap<String, String> dades) throws SQLException{
         int resposta;
         String nom_admin = dades.get("nom_admin");
         String password = dades.get("password");
@@ -204,10 +204,10 @@ public class controladorSQL {
                 + "'"+cognoms+"','"+direccio+"','"+pais+"','"+telefon+"','"+data_naixement+"');";
         
         if (trobaUsuari(stmt, nom_user)){
-            if (funcionsAux.comprobaPassword(password)){
-                if(funcionsAux.comprobaFormatDNI(dni)){
+            if (funcionsAux.comprovaPassword(password)){
+                if(funcionsAux.comprovaFormatDNI(dni)){
                     if(funcionsAux.trobaDNI(stmt, dni, taula) == false){
-                        if(funcionsAux.comprobaFormatEmail(correu)){
+                        if(funcionsAux.comprovaFormatEmail(correu)){
                             if(funcionsAux.trobaCorreu(stmt, correu, taula) == false){
                                 try{
                                     stmt.executeUpdate(sentencia);
@@ -240,7 +240,7 @@ public class controladorSQL {
     
     public static int afegeixNouAdmin(Statement stmt, HashMap<String, String> dades) throws SQLException{
         int resposta = 0;
-        int comprobador;
+        int comprovador;
         String taula = "administradors";
         
         String nom_admin = dades.get("nom_admin");
@@ -260,10 +260,10 @@ public class controladorSQL {
                 + "'"+cognoms+"','"+direccio+"','"+pais+"','"+telefon+"','"+data_naixement+"');";
         
         if (trobaAdmin(stmt, nom_admin)){
-            if (funcionsAux.comprobaPassword(password)){
-                if(funcionsAux.comprobaFormatDNI(dni)){
+            if (funcionsAux.comprovaPassword(password)){
+                if(funcionsAux.comprovaFormatDNI(dni)){
                     if(funcionsAux.trobaDNI(stmt, dni, taula) == false){
-                        if(funcionsAux.comprobaFormatEmail(correu)){
+                        if(funcionsAux.comprovaFormatEmail(correu)){
                             if(funcionsAux.trobaCorreu(stmt, correu, taula) == false){
                                 try{
                                     stmt.executeUpdate(sentencia);
@@ -532,11 +532,11 @@ public class controladorSQL {
         if (taula == "usuaris"){
             nouNom = dades.get("nou_user_name");
             user_name = dades.get("user_name");
-            resposta = comprobarUsuari(stmt, dades);
+            resposta = comprovarUsuari(stmt, dades);
         }else{
             nouNom = dades.get("nou_nom_admin");
             nom_admin = dades.get("nom_admin");
-            resposta = comprobarAdmin(stmt, dades);
+            resposta = comprovarAdmin(stmt, dades);
         }
         String numero_soci = dades.get("numero_soci");
         String password = dades.get("password");
@@ -549,8 +549,8 @@ public class controladorSQL {
         String telefon = dades.get("telefon");
         String data_naixement = dades.get("data_naixement");
 
-        if(funcionsAux.comprobaFormatDNI(dni)){
-            if(funcionsAux.comprobaFormatEmail(correu)){
+        if(funcionsAux.comprovaFormatDNI(dni)){
+            if(funcionsAux.comprovaFormatEmail(correu)){
                 resposta = MODIFICACIO_OK;
             }else{
                 resposta = FORMAT_EMAIL;
@@ -706,7 +706,7 @@ public class controladorSQL {
                 long miliseconds = System.currentTimeMillis();
                 Date data_actual= new Date(miliseconds);
                 Date data_retorn_teoric = new Date(data_actual.getTime() + (milisecondsByDay * 14));
-                sentencia = "insert into prestecs (id_llibre, data_reserva, data_retorn_teoric) values ('"+id_llibre+"','"+data_actual+"','"+data_retorn_teoric+"');";
+                sentencia = "insert into prestecs (id_llibre, data_reserva, data_retorn_teoric, user_name) values ('"+id_llibre+"','"+data_actual+"','"+data_retorn_teoric+"','"+userName+"');";
                 resultat = stmt.executeUpdate(sentencia);
                 if (0 < resultat){
                     return RESERVAT_OK; //llibre reservat

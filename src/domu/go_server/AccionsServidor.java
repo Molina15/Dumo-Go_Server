@@ -38,8 +38,8 @@ public class AccionsServidor {
 
     private static Connection connexio;
     
-    private static String taula_admin_connectats[][] = new String[10][3];
-    private static String taula_usuaris_connectats[][] = new String[100][3];
+    public static String taula_admin_connectats[][] = new String[10][3];
+    public static String taula_usuaris_connectats[][] = new String[100][3];
     private static int totalUsuaris = 0;
     private static int totalAdmin= 0;
     
@@ -86,7 +86,7 @@ public class AccionsServidor {
     public static void executaComprovador() throws SQLException, ParseException, InterruptedException{
         ArrayList prestecs = controladorSQL.llistaPrestecsNoRetornats(stmt);
         
-        threadComprovador comprovador = new threadComprovador(stmt, prestecs);
+        threadComprovadorPrestecs comprovador = new threadComprovadorPrestecs(stmt, prestecs);
         comprovador.start();
     }
    
@@ -115,8 +115,8 @@ public class AccionsServidor {
             switch(dades.get("accio")){
                 // rep HashMap amb les claus(accio, nom_user, password)
                 
-                case "comprobar_usuari":
-                    resultat = controladorSQL.comprobarUsuari(stmt, dades);
+                case "comprovar_usuari":
+                    resultat = controladorSQL.comprovarUsuari(stmt, dades);
                     if (resultat == 8000){
                         posicioUsuari = controladorUsuaris.trobaUsuari(taula_usuaris_connectats, totalUsuaris, dades.get("user_name"));
                         if(posicioUsuari == -1){
@@ -136,8 +136,8 @@ public class AccionsServidor {
                     break;
                 
                 // rep HashMap amb les claus(accio, nom_admin, password)
-                case "comprobar_admin":
-                    resultat = controladorSQL.comprobarAdmin(stmt, dades);
+                case "comprovar_admin":
+                    resultat = controladorSQL.comprovarAdmin(stmt, dades);
                     if (resultat == 7000){
                         posicioAdmin = controladorUsuaris.trobaUsuari(taula_admin_connectats, totalAdmin, dades.get("nom_admin"));
                         if(posicioAdmin == -1){
