@@ -799,17 +799,13 @@ public class controladorSQL {
     }
     
     public static int afegeixComentari(Statement stmt, HashMap<String, String> dades) throws SQLException{
-        System.out.println("hola");
         String sentencia; 
         int resposta = 0;
-        System.out.println("hola");
         long miliseconds = System.currentTimeMillis();
         Date data= new Date(miliseconds);
         System.out.println(data.toString());
-        System.out.println("hola");
         sentencia = "INSERT INTO comentaris (id_llibre, user_name, comentari, data) "
         + "VALUES ("+dades.get("id_llibre")+",'"+dades.get("user_name")+"','"+dades.get("comentari")+"','"+ data +"');";
-        System.out.println("hola");
         stmt.executeUpdate(sentencia);
         System.out.println(sentencia.toString());
         resposta = COMENTARI_AFEGIT;
@@ -821,6 +817,7 @@ public class controladorSQL {
         int resposta = 0;
         String id_comentari = dades.get("id_comentari");
         String sentencia = "DELETE FROM comentaris WHERE id = '"+ id_comentari +"';";
+        System.out.println(sentencia);
         int rs = stmt.executeUpdate(sentencia);
         if (rs == 1){
             resposta = COMENTARI_ESBORRAT;
@@ -833,23 +830,25 @@ public class controladorSQL {
     public static int eliminaComentariUsuari(Statement stmt, HashMap<String, String> dades) throws SQLException{
         String id_comentari = dades.get("id_comentari");
         String sentencia = "select user_name from comentaris where id = '"+ id_comentari +"';";
+        System.out.println(sentencia);
         ResultSet rs = stmt.executeQuery(sentencia);
-        String userNameRs = null;
+        String userNameRs = "xxxxx";
         int resposta;
-        while(rs.next()){
+        if(rs.next()){
             userNameRs= rs.getString(1);
-        }
-        if (userNameRs.equals(dades.get("user_name"))){
+            if (userNameRs.equals(dades.get("user_name"))){
             resposta = eliminaComentari(stmt, dades);
+            }else {
+                resposta = USUARI_SENSE_PERMISOS;
+            }
         }else {
-            resposta = USUARI_SENSE_PERMISOS;
+            return resposta = COMENTARI_INEXISTENT;
         }
-        
         return resposta;
     }
     
     public static ArrayList llistaComentaris(Statement stmt, HashMap<String, String> dades) throws SQLException{
-        String nom_llibre = dades.get("nom_llibre");
+        String nom_llibre = dades.get("nom");
         String sentencia = "select C.* from comentaris C, llibres L where C.id_llibre = L.id "
                 + "and L.nom = '"+nom_llibre+"' order by data ASC;";
         

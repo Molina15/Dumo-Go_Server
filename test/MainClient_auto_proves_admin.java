@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 
-public class MainClient_auto_proves {
+public class MainClient_auto_proves_admin {
     
      private static int MOSTRA_USUARI_OK = 5000;
     private static int USUARI_NO_VALID = 5010;
@@ -61,6 +61,30 @@ public class MainClient_auto_proves {
 
     private static int MODIFICA_LLIBRE_OK = 1800;
     private static int MODIFICA_NO_TROBAT = 1810;
+    
+    private static int VALORACIO_OK = 1900;
+    
+    private static int RESERVAT_OK = 2100;
+    private static int LLIBRE_JA_RESERVAT = 2110;
+    
+    private static int RETORN_OK = 2200;
+    private static int LLIBRE_NO_PRESTAT = 2210;
+    
+    private static int LLISTA_PRESTECS_OK = 2300;
+    
+    private static int LLISTA_PRESTECS_USUARI_OK = 2400;
+    
+    private static int LLISTA_LLEGITS_OK = 2500;
+     
+    private static int LLISTA_PRESTECS_URGENTS_OK = 2600;
+
+    private static int COMENTARI_AFEGIT = 2700;
+    
+    private static int COMENTARI_ESBORRAT = 2800;
+    private static int COMENTARI_INEXISTENT = 2810;
+    private static int USUARI_SENSE_PERMISOS = 2820;
+    
+    private static int LLISTA_COMENTARIS_OK = 2900;
     
     public static void main(String[] args) throws Exception {
         //Socket socket = null; 
@@ -122,6 +146,17 @@ public class MainClient_auto_proves {
             HashMap<String, String> llista_llibres2 = new HashMap<String, String>();
             HashMap<String, String> modifica_llibre = new HashMap<String, String>();
             HashMap<String, String> modifica_llibre2 = new HashMap<String, String>();
+            HashMap<String, String> puntua_llibre = new HashMap<String, String>();
+            HashMap<String, String> reserva_llibre = new HashMap<String, String>();
+            HashMap<String, String> retorna_llibre = new HashMap<String, String>();
+            HashMap<String, String> llista_prestecs = new HashMap<String, String>();
+            HashMap<String, String> llista_prestecs_usuari = new HashMap<String, String>();
+            HashMap<String, String> llista_prestecs_no_retornats = new HashMap<String, String>();
+            HashMap<String, String> llista_llegits = new HashMap<String, String>();
+            HashMap<String, String> llista_prestecs_urgents = new HashMap<String, String>();
+            HashMap<String, String> afegeix_comentari = new HashMap<String, String>();
+            HashMap<String, String> elimina_comentari = new HashMap<String, String>();
+            HashMap<String, String> llista_comentaris = new HashMap<String, String>();
             
             
             while(online){
@@ -133,10 +168,10 @@ public class MainClient_auto_proves {
                 entrada = "11";
                 
                 if ("11".equals(entrada)){
-                    System.out.println("\nInici de sessió com a admin.");
-                    comprobar_admin.put("accio", "comprobar_admin");
-                    comprobar_admin.put("nom_admin","marçal");
-                    comprobar_admin.put("password", "1234");
+                    System.out.println("\nInici de sessió com a ADMIN.");
+                    comprobar_admin.put("accio", "comprovar_usuari");
+                    comprobar_admin.put("nom_admin","marçal99");
+                    comprobar_admin.put("password", "12345");
                     mapOutputStream.writeObject(comprobar_admin);
                     System.out.println("Esperant confirmacio...");
                     resposta = (int) mapInputStream.readObject();
@@ -145,36 +180,12 @@ public class MainClient_auto_proves {
                 }
                 
                 if ("11".equals(entrada)){
-                    System.out.println("\nProva afegir_llibre");
-                    long miliseconds = System.currentTimeMillis();
-                    Date date = new Date(miliseconds);
-                    afegir_llibre.put("codi", codi);
-                    afegir_llibre.put("accio", "afegir_llibre");
-                    afegir_llibre.put("nom", "Harry Potter y el Càliz de fuego 3");
-                    afegir_llibre.put("autor", "JK. Rowling");
-                    afegir_llibre.put("any_publicacio", "1999");
-                    afegir_llibre.put("tipus", "Fantàsia");
-                    afegir_llibre.put("data_alta", date.toString());
-                    afegir_llibre.put("admin_alta", "molina15");
-                    afegir_llibre.put("descripcio", "Un llibre molt guapo.");
+                    System.out.println("\nProva retorna_llibre 1");
+                    retorna_llibre.put("codi", codi);
+                    retorna_llibre.put("accio", "retorna_llibre");
+                    retorna_llibre.put("id_llibre", "75" );
                     //enviem la consulta al servidor
-                    mapOutputStream.writeObject(afegir_llibre);
-                    System.out.println("Esperant confirmacio...");
-                    //rebem la resposta del servidor
-                    resposta = (int) mapInputStream.readObject();
-                    System.out.println("Servidor: " + resposta);
-                    
-                    if (resposta == LLIBRE_AFEGIT){
-                       System.out.println("Prova afegeix_llibre OK");
-                    }
-                }    
-                if ("11".equals(entrada)){
-                    System.out.println("\nProva esborrar_llibre");
-                    esborra_llibre.put("codi", codi);
-                    esborra_llibre.put("accio", "esborrar_llibre");
-                    esborra_llibre.put("id", "68");
-                    System.out.println(esborra_llibre);
-                    mapOutputStream.writeObject(esborra_llibre);
+                    mapOutputStream.writeObject(retorna_llibre);
                     System.out.println("Esperant confirmacio...");
                     //rebem la resposta del servidor
                     resposta = (int) mapInputStream.readObject();
@@ -188,12 +199,73 @@ public class MainClient_auto_proves {
                 }
                 
                 if ("11".equals(entrada)){
-                    System.out.println("\nProva esborrar_llibre 2");
-                    esborra_llibre2.put("codi", codi);
-                    esborra_llibre2.put("accio", "esborrar_llibre");
-                    esborra_llibre2.put("id", "10");
-                    System.out.println(esborra_llibre);
-                    mapOutputStream.writeObject(esborra_llibre2);
+                    System.out.println("\nProva retorna_llibre 2");
+                    retorna_llibre.put("codi", codi);
+                    retorna_llibre.put("accio", "retorna_llibre");
+                    retorna_llibre.put("id_llibre", "75" );
+                    //enviem la consulta al servidor
+                    mapOutputStream.writeObject(retorna_llibre);
+                    System.out.println("Esperant confirmacio...");
+                    //rebem la resposta del servidor
+                    resposta = (int) mapInputStream.readObject();
+                    System.out.println("Servidor: " + resposta);
+                    
+                    if (resposta == LLIBRE_ESBORRAT){
+                       System.out.println("Prova retorna_llibre OK");
+                    }else if( resposta == LLIBRE_NO_PRESTAT){
+                        System.out.println("Llibre no prestat");
+                    }
+                }
+                
+                if ("11".equals(entrada)){
+                    System.out.println("\nProva llista_prestecs");
+                    llista_prestecs.put("codi", codi);
+                    llista_prestecs.put("accio", "llista_prestecs");
+                    mapOutputStream.writeObject(llista_prestecs);
+                    System.out.println("Esperant confirmacio...");
+                    //enviem la consulta al servidor
+                    Object respostaObj = mapInputStream.readObject();
+                    respostaArrayMap = (ArrayList) respostaObj;
+                    int j = 0;
+                    while(j < respostaArrayMap.size()){
+                        System.out.println(respostaArrayMap.get(j));
+                        j++;
+                    }
+                    
+                    respostaMap = (HashMap) respostaArrayMap.get(0);
+                    resposta = Integer.valueOf(respostaMap.get("codi_retorn"));
+                    
+                    if (resposta == LLISTA_PRESTECS_OK){
+                       System.out.println("Prova llista_prestecs OK");
+                    }
+                }
+                
+                 if ("11".equals(entrada)){
+                     System.out.println("\nProva llista_prestecs");
+                    reserva_llibre.put("codi", codi);
+                    reserva_llibre.put("accio", "reserva_llibre");
+                    reserva_llibre.put("id_llibre", "75" );
+                    //enviem la consulta al servidor
+                    mapOutputStream.writeObject(reserva_llibre);
+                    System.out.println("Esperant confirmacio...");
+                    //rebem la resposta del servidor
+                    resposta = (int) mapInputStream.readObject();
+                    System.out.println("Servidor: " + resposta);
+                    
+                    if (resposta == RESERVAT_OK){
+                       System.out.println("Prova esborra_llibre OK");
+                    }else if(resposta == LLIBRE_JA_RESERVAT){
+                        System.out.println("Llibre ja reservat");
+                    }
+                }
+                
+                if ("11".equals(entrada)){
+                    System.out.println("\nProva retorna_llibre 2");
+                    retorna_llibre.put("codi", codi);
+                    retorna_llibre.put("accio", "retorna_llibre");
+                    retorna_llibre.put("id_llibre", "75" );
+                    //enviem la consulta al servidor
+                    mapOutputStream.writeObject(retorna_llibre);
                     System.out.println("Esperant confirmacio...");
                     //rebem la resposta del servidor
                     resposta = (int) mapInputStream.readObject();
@@ -569,6 +641,9 @@ public class MainClient_auto_proves {
                         System.out.println("Llibre no trobat");
                     }
                 }
+                
+                
+                
                 
                 System.out.println("\nTancant sessio...");
                 tancar_sessio.put("codi", codi);

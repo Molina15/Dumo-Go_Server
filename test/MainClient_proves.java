@@ -574,7 +574,7 @@ public class MainClient_proves {
                 else if("30".equals(entrada)){
                     llista_comentaris.put("codi", codi);
                     llista_comentaris.put("accio", "llista_comentaris");
-                    llista_comentaris.put("nom_llibre", "El nom del vent");
+                    llista_comentaris.put("nom", "El nom del vent");
                     
                     mapOutputStream.writeObject(llista_comentaris);
                     System.out.println("Esperant confirmacio...");
