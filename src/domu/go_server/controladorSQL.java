@@ -669,20 +669,22 @@ public class controladorSQL {
         int valoracio_usuari = Integer.parseInt(dades.get("valoracio_usuari"));
         String id_llibre = dades.get("id_llibre");
         System.out.println("Introduïnt valoracio.");
-        String sentencia = "Select valoracio, vots from llibres where id = '"+id_llibre+"';";
+        String sentencia = "Select valoracio, vots, nom from llibres where id = '"+id_llibre+"';";
         System.out.println(sentencia.toString());
         ResultSet rs = stmt.executeQuery(sentencia);
         int valoracio = -1;
         int vots = -1;
+        String nomLlibre = null;
         while(rs.next()){
             valoracio= rs.getInt(1);
             vots = rs.getInt(2);
+            nomLlibre= rs.getString(3);
         }
         System.out.println("Valoracio = "+valoracio+" Vots= "+vots);
         int suma_valoracio = valoracio*vots;
         int vots_actualitzats = vots + 1;
         int valoracio_actualitzada = (suma_valoracio + valoracio_usuari)/vots_actualitzats;
-        sentencia = "Update llibres set (valoracio, vots) = ("+valoracio_actualitzada+", "+vots_actualitzats+") where id = '"+id_llibre+"';";
+        sentencia = "Update llibres set (valoracio, vots) = ("+valoracio_actualitzada+", "+vots_actualitzats+") where nom = '"+nomLlibre+"';";
         stmt.executeUpdate(sentencia);
         return VALORACIO_OK;
     }
@@ -723,13 +725,16 @@ public class controladorSQL {
         String id_llibre = dades.get("id_llibre");
         long miliseconds = System.currentTimeMillis();
         Date data_actual= new Date(miliseconds);
-        String sentencia = "Update prestecs set data_retorn_real = '"+data_actual+"' where id_llibre = "+id_llibre+";";
+        String sentencia = "Update prestecs set data_retorn_real = '"+data_actual+"' where id_llibre = "+id_llibre+" and data_retorn_real is null;";
+        System.out.println(sentencia.toString());
         int resultat = stmt.executeUpdate(sentencia);
         if (0 < resultat){
             sentencia = "Update llibres set user_name = 'LLIURE' where id = "+id_llibre+";";
+            System.out.println(sentencia.toString());
             resultat = stmt.executeUpdate(sentencia);
              if (0 < resultat){
                     sentencia = "update prestecs set avis_programat = false where id_llibre = "+id_llibre+";";
+                    System.out.println(sentencia.toString());
                     resultat = stmt.executeUpdate(sentencia);
                     return RETORN_OK;
                 }
@@ -803,9 +808,9 @@ public class controladorSQL {
         int resposta = 0;
         long miliseconds = System.currentTimeMillis();
         Date data= new Date(miliseconds);
-        System.out.println(data.toString());
+        int id_llibre = Integer.valueOf(dades.get("id_llibre"));
         sentencia = "INSERT INTO comentaris (id_llibre, user_name, comentari, data) "
-        + "VALUES ("+dades.get("id_llibre")+",'"+dades.get("user_name")+"','"+dades.get("comentari")+"','"+ data +"');";
+        + "VALUES ("+id_llibre+",'"+dades.get("user_name")+"','"+dades.get("comentari")+"','"+ data +"');";
         stmt.executeUpdate(sentencia);
         System.out.println(sentencia.toString());
         resposta = COMENTARI_AFEGIT;

@@ -200,7 +200,7 @@ public class MainClient_auto_proves_usuari {
                     System.out.println("\nProva reserva_llibre");
                     reserva_llibre.put("codi", codi);
                     reserva_llibre.put("accio", "reserva_llibre");
-                    reserva_llibre.put("id_llibre", "59" );
+                    reserva_llibre.put("id_llibre", "75" );
                     //enviem la consulta al servidor
                     mapOutputStream.writeObject(reserva_llibre);
                     System.out.println("Esperant confirmacio...");
