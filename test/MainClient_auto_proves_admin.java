@@ -270,7 +270,7 @@ public class MainClient_auto_proves_admin {
                     System.out.println("\nProva elimina_comentari");
                     elimina_comentari.put("codi", codi);
                     elimina_comentari.put("accio", "elimina_comentari");
-                    elimina_comentari.put("id_comentari", "23");
+                    elimina_comentari.put("id_comentari", "24");
                     mapOutputStream.writeObject(elimina_comentari);
                     System.out.println("Esperant confirmacio...");
                     //enviem la consulta al servidor
@@ -306,9 +306,6 @@ public class MainClient_auto_proves_admin {
                     }
                 
                 }
-                
-                
-                
                 
                 System.out.println("\nTancant sessio...");
                 tancar_sessio.put("codi", codi);

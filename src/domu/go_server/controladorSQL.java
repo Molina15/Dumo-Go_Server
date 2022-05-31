@@ -787,7 +787,7 @@ public class controladorSQL {
     }
      
     public static void marcaPrestec(Statement stmt, String id_llibre) throws SQLException{
-        String sentencia = "Update prestecs set avis_programat = 'true' where id_llibre = "+id_llibre+";";
+        String sentencia = "Update prestecs set avis_programat = 'true' where id_llibre = "+id_llibre+" and data_retorn_real is null;";
         stmt.executeUpdate(sentencia);
     }
     

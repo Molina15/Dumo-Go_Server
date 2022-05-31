@@ -137,8 +137,8 @@ public class MainClient_proves {
                     
                 }else if ("3".equals(entrada)){
                     comprovar_usuari.put("accio", "comprovar_usuari");
-                    comprovar_usuari.put("user_name","Kilian34");
-                    comprovar_usuari.put("password", "1234");
+                    comprovar_usuari.put("user_name","Pep25");
+                    comprovar_usuari.put("password", "12345");
                     mapOutputStream.writeObject(comprovar_usuari);
                     System.out.println("Esperant confirmacio...");
                     resposta = (int) mapInputStream.readObject();
@@ -433,7 +433,7 @@ public class MainClient_proves {
                 else if("21".equals(entrada)){
                     reserva_llibre.put("codi", codi);
                     reserva_llibre.put("accio", "reserva_llibre");
-                    reserva_llibre.put("id_llibre", "75" );
+                    reserva_llibre.put("id_llibre", "61" );
                     //enviem la consulta al servidor
                     mapOutputStream.writeObject(reserva_llibre);
                     System.out.println("Esperant confirmacio...");

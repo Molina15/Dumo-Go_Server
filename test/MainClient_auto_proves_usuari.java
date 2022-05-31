@@ -220,7 +220,7 @@ public class MainClient_auto_proves_usuari {
                     System.out.println("\nProva reserva_llibre 2");
                     reserva_llibre.put("codi", codi);
                     reserva_llibre.put("accio", "reserva_llibre");
-                    reserva_llibre.put("id_llibre", "59" );
+                    reserva_llibre.put("id_llibre", "57" );
                     //enviem la consulta al servidor
                     mapOutputStream.writeObject(reserva_llibre);
                     System.out.println("Esperant confirmacio...");
@@ -329,7 +329,7 @@ public class MainClient_auto_proves_usuari {
                      System.out.println("\nProva elimina_comentari_usuari ");
                      elimina_comentari.put("codi", codi);
                     elimina_comentari.put("accio", "elimina_comentari");
-                    elimina_comentari.put("id_comentari", "20");
+                    elimina_comentari.put("id_comentari", "21");
                     mapOutputStream.writeObject(elimina_comentari);
                     System.out.println("Esperant confirmacio...");
                     //enviem la consulta al servidor
