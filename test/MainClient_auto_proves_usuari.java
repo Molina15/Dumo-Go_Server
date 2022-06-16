@@ -426,9 +426,9 @@ public class MainClient_auto_proves_usuari {
             
             
         } catch (UnknownHostException ex) {
-            Logger.getLogger(MainClient_proves.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SSL_MainClient_proves.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(MainClient_proves.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SSL_MainClient_proves.class.getName()).log(Level.SEVERE, null, ex);
         }
     }    
 }

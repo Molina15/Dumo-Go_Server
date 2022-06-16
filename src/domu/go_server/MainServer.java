@@ -6,13 +6,22 @@
 package domu.go_server;
 
 import com.jcraft.jsch.JSchException;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.KeyStore;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 
 /**
  *
@@ -25,10 +34,16 @@ public class MainServer {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception {
+       
+        System.setProperty("javax.net.ssl.keyStore", "src/certificates/servidor/serverKey.jks");
+        System.setProperty("javax.net.ssl.keyStorePassword","dumogo2022");
+        System.setProperty("javax.net.ssl.trustStore", "src/certificates/servidor/serverTrustedCerts.jks");
+        System.setProperty("javax.net.ssl.trustStorePassword", "dumogo2022");
         
         int port = 7777;
         int maxConnexions = 100;
-        Socket socket = null;
+        SSLSocket socket = null;
+        
         ServerSocket serverSocket = null;
         
         try {
@@ -40,12 +55,14 @@ public class MainServer {
         
         try {
             // Creant socket servidor     
-            serverSocket = new ServerSocket(port, maxConnexions);
+            //serverSocket = ssf.createServerSocket(port, maxConnexions);
+            SSLServerSocketFactory serverFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
+            serverSocket = serverFactory.createServerSocket(port);
             //Bucle infinit esperant connexions
             int i=0;
             while (true) {
                 System.out.println("Servidor a l'espera de connexions.");
-                socket = serverSocket.accept();
+                socket = (SSLSocket)serverSocket.accept();
                 System.out.println("Client "+i+ " amb la IP " + socket.getInetAddress().getHostName() + " connectat.");
                 //instancia a connexió client
                 ThreadClient cc = new ThreadClient(socket, i);
